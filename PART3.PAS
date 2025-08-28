@@ -1,85 +1,10 @@
 program Part3;
 
-const
-  numRows = 20;
-  numCols = 39;
-  numSlots = 20;
-  numCoins = 6;
-  lenCoin = 20;
-  inputFnm = 'PART3.TXT';
+uses
+  SlotMchn;
 
 type
-  TMachine = array[1..numRows] of String[numCols];
-  TCoins = array[1..numCoins] of String[lenCoin];
-
-var
-  Machine : TMachine;
-  Coins : TCoins;
-
-procedure Parse;
-type
-  TState = (sMachine, sCoins);
-var
-  EcInp : Text;
-  Line : String;
-  State : TState;
-  Idx : Byte;
-begin
-  Assign(EcInp, inputFnm);
-  Reset(EcInp);
-  State := sMachine;
-  Idx := 0;
-  while not Eof(EcInp) do
-  begin
-    ReadLn(EcInp, Line);
-    Idx := Idx + 1;
-    if Line = '' then
-    begin
-      State := sCoins;
-      Idx := 0;
-    end
-    else if State = sMachine then
-      Machine[Idx] := Line
-    else
-      Coins[Idx] := Line;
-  end;
-  Close(EcInp);
-end;
-
-function Play(CoinIdx, Slot : Byte) : Integer;
-var
-  X, Y, BehaviourIdx, FinalSlot : Byte;
-  Coin : String;
-  Score : Integer;
-begin
-  Coin := Coins[CoinIdx];
-  X := Slot * 2 - 1;
-  BehaviourIdx := 0;
-  for Y := 1 to numRows + 1 do
-  begin
-    if Machine[Y][X] = '*' then
-    begin
-      BehaviourIdx := BehaviourIdx + 1;
-      if Coin[BehaviourIdx] = 'R' then
-        if X = numCols then
-          X := X - 1
-        else
-          X := X + 1
-      else
-        if X = 1 then
-          X := X + 1
-        else
-          X := X - 1;
-    end;
-  end;
-  Score := ((X + 1) div 2) * 2 - Slot;
-  if (Score < 0) then
-    Score := 0;
-  Play := Score;
-end;
-
-type
-  TGameState = array[1..numSlots] of Byte;
+  TGameState = array[1..maxSlots] of Byte;
 
 var
   NumCombs : LongInt;
@@ -127,7 +52,7 @@ begin
   WriteLn('Everybody Codes');
   WriteLn('Story 2: The Entertainment Hub');
   WriteLn('Quest 1: Nail Down Your Luck');
-  Parse;
+  Parse('PART3.TXT');
   CoinsLeft := numCoins;
   for SlotIdx := 1 to numSlots do
     GameState[SlotIdx] := 0;
