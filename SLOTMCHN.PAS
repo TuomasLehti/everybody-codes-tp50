@@ -62,7 +62,9 @@ var
 
 
 
-procedure Parse;
+procedure Parse(
+  inputFnm : String
+);
 
 type
   TState = (sMachine, sCoins);
