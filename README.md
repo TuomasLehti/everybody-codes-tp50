@@ -1,11 +1,12 @@
-# Everybody Codes in TP 5.0
+# Coding Puzzles in TP 5.0
 
-Some solvers for puzzles from Everybody Codes in Turbo Pascal 5.0. Created by 
-Tuomas Lehti August 2025.
+Some solvers for coding puzzles in Turbo Pascal 5.0. Created by Tuomas Lehti
+August 2025.
 
 ## About
 
-[Everybody Codes](https://everybody.codes/) is an ever-growing set of 
+[Everybody Codes](https://everybody.codes/) and 
+[Advent of Code](https://adventofcode.com/) are ever-growing sets of 
 programming puzzles, which may be solved in any programming language.
 
 This repo contains the puzzles which I've chosen to solve using 
@@ -27,14 +28,20 @@ This is just a hobby for me, as is programming in general. This repo may
 just cease to develop and evolve without prior warning, if things aren't
 fun anymore, or if I don't have the time to delve in the past.
 
+Even though the repo is named after Everybody Codes, it now contains code for
+Advent of Code as well. I may also add some code from [Internationalization
+puzzles](https://i18n-puzzles.com/). Tips for other programming puzzle sites
+are always welcome.
+
 ## License
+
 This project is licensed under the **CC0 1.0 Universal Public Domain Dedication**. 
 This means you are free to use, modify, and distribute the contents of this 
 repository without restriction.  
 
 ## Attribution Request
+
 Although not legally required, I kindly ask that if you use this code elsewhere, 
-you mention me (Tuomas Lehti) as the original author, and spread the word about 
-*Everybody Codes*.
+you mention me (Tuomas Lehti) as the original author.
 
 Thank you!
