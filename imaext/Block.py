@@ -54,9 +54,9 @@ class Block:
         return self.bytes[ofs:end].decode("ascii").strip()
 
 
-    def get_block(
+    def get_bytes(
         self,
         ofs : int,
         len : int
     ) -> bytearray:
-        return Block(self.bytes[ofs:ofs + len])
+        return self.bytes[ofs:ofs + len]
