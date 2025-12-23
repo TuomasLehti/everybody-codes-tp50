@@ -17,7 +17,7 @@ class BootSector(Block):
         self
     ) -> str:
         """Returns the disk label."""
-        return self.bytes.get_string(
+        return self.get_string(
             BootSector.LABEL_OFS, BootSector.LABEL_LEN
         )
 
@@ -26,7 +26,7 @@ class BootSector(Block):
         self
     ) -> str:
         """Returns the file system id. This describes the file system used."""
-        return self.bytes.get_string(
+        return self.get_string(
             BootSector.FILE_SYSTEM_ID_OFS, BootSector.FILE_SYSTEM_ID_LEN
         )
 
@@ -35,21 +35,21 @@ class BootSector(Block):
         self
     ) -> int:
         """Returns the number of bytes in a (logical) sector."""
-        return self.bytes.get_word(BootSector.SECTOR_SIZE_OFS)
+        return self.get_word(BootSector.SECTOR_SIZE_OFS)
     
 
     def get_num_of_reserved_sectors(
         self
     ) -> int:
         """Returns the number of reserved sectors in the beginning of the image."""
-        return self.bytes.get_word(BootSector.NUM_OF_RESERVED_SECTORS_OFS)
+        return self.get_word(BootSector.NUM_OF_RESERVED_SECTORS_OFS)
     
 
     def get_num_of_fats(
         self
     ) -> int:
         """Returns the number of file allocation tables."""
-        return self.bytes.get_byte(BootSector.NUM_OF_FATS_OFS)
+        return self.get_byte(BootSector.NUM_OF_FATS_OFS)
 
 
     def get_fat_size(
@@ -57,7 +57,7 @@ class BootSector(Block):
     ) -> int:
         """Returns the number of logical sectors per fat."""
         # This project deals only with FAT12, no need to check 0x024.
-        return self.bytes.get_word(BootSector.FAT_SIZE_OFS)
+        return self.get_word(BootSector.FAT_SIZE_OFS)
     
 
     def get_fat_ofs(
