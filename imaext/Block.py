@@ -39,8 +39,8 @@ class Block:
         return (
             self.bytes[ofs] + 
             self.bytes[ofs + 1] * 256 +
-            self.bytes[ofs + 1] * 256 * 256 +
-            self.bytes[ofs + 1] * 256 * 256 * 256
+            self.bytes[ofs + 2] * 256 * 256 +
+            self.bytes[ofs + 3] * 256 * 256 * 256
         )
 
 

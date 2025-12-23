@@ -12,7 +12,6 @@ class TestBlock(unittest.TestCase):
         self.assertEqual(self._block.get_byte(0), 0x10)
 
     def test_get_word(self):
-        print(hex(self._block.get_word(0)))
         self.assertEqual(self._block.get_word(0), 0x1110)
 
     def test_get_dword(self):
