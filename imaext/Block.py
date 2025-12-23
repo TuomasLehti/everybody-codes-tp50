@@ -1,3 +1,6 @@
+from typing import Tuple
+
+
 class Block:
 
 
@@ -41,6 +44,22 @@ class Block:
             self.bytes[ofs + 1] * 256 +
             self.bytes[ofs + 2] * 256 * 256 +
             self.bytes[ofs + 3] * 256 * 256 * 256
+        )
+    
+
+    def get_word_pair(
+        self,
+        ofs : int
+    ) -> Tuple[int]:
+        """Returns two 12-bit unsigned integers which have been packed to
+        three bytes in the buffer."""
+        first_byte = self.bytes[ofs]
+        middle_high_nibble = self.bytes[ofs + 1] >> 4
+        middle_low_nibble = self.bytes[ofs + 1] & 0x0F
+        last_byte = self.bytes[ofs + 2]
+        return (
+            first_byte + (middle_low_nibble << 8),
+            middle_high_nibble + (last_byte << 4)
         )
 
 

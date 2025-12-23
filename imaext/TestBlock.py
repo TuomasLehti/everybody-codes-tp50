@@ -20,5 +20,9 @@ class TestBlock(unittest.TestCase):
     def test_get_string(self):
         self.assertEqual(self._block.get_string(4, 8), "abcd")
 
+    def test_get_word_pair(self):
+        self.assertEqual(self._block.get_word_pair(0x0c), (3, 4))
+        self.assertEqual(self._block.get_word_pair(0x0f), (0x0f, 0x10))
+
 if __name__ == '__main__':
     unittest.main()
