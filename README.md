@@ -33,6 +33,11 @@ Advent of Code as well. I may also add some code from [Internationalization
 puzzles](https://i18n-puzzles.com/). Tips for other programming puzzle sites
 are always welcome.
 
+## Imaext
+
+Imaext is a silly little disk image extractor to make the interoperability
+between the emulator and a modern git interface easier.
+
 ## License
 
 This project is licensed under the **CC0 1.0 Universal Public Domain Dedication**. 
