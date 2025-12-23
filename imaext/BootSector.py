@@ -3,6 +3,7 @@ from Block import Block
 class BootSector(Block):
 
     SECTOR_SIZE_OFS = 0x0b
+    NUM_OF_RESERVED_SECTORS_OFS = 0x0e
     NUM_OF_FATS_OFS = 0x10
     FAT_SIZE_OFS = 0x16
     LABEL_OFS = 0x2b
@@ -35,7 +36,14 @@ class BootSector(Block):
     ) -> int:
         """Returns the number of bytes in a (logical) sector."""
         return self.bytes.get_word(BootSector.SECTOR_SIZE_OFS)
+    
 
+    def get_num_of_reserved_sectors(
+        self
+    ) -> int:
+        """Returns the number of reserved sectors in the beginning of the image."""
+        return self.bytes.get_word(BootSector.NUM_OF_RESERVED_SECTORS_OFS)
+    
 
     def get_num_of_fats(
         self
@@ -50,7 +58,14 @@ class BootSector(Block):
         """Returns the number of logical sectors per fat."""
         # This project deals only with FAT12, no need to check 0x024.
         return self.bytes.get_word(BootSector.FAT_SIZE_OFS)
+    
 
+    def get_fat_ofs(
+        self
+    ) -> int:
+        """Returns the offset of the first file allocation table."""
+        return self.get_sector_size() * self.get_num_of_reserved_sectors()
+    
 
     def get_root_dir_ofs(
         self
