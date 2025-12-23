@@ -1,5 +1,4 @@
 import unittest
-from Block import Block
 from Image import Image
 
 class TestBootSector(unittest.TestCase):
