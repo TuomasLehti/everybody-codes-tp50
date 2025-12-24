@@ -1,4 +1,5 @@
 import unittest
+from Entry import Entry
 from Image import Image
 
 class TestEntry(unittest.TestCase):
@@ -11,3 +12,23 @@ class TestEntry(unittest.TestCase):
     def test_get_name(self):
         entry = self.__root.get_entry(0)
         self.assertEqual(entry.get_file_name(), 'IO.SYS')
+
+    def test_get_size(self):
+        entry = self.__root.get_entry(0)
+        self.assertEqual(entry.get_size(), 33430)
+
+    def test_has_attr_iosys(self):
+        entry = self.__root.get_entry(0)
+        self.assertTrue(entry.has_attr(Entry.HIDDEN_ATTR))
+        self.assertTrue(entry.has_attr(Entry.SYSTEM_ATTR))
+        self.assertTrue(entry.has_attr(Entry.READ_ONLY_ATTR))
+
+    def test_has_attr_volume(self):
+        entry = self.__root.get_entry(2)
+        self.assertTrue(entry.has_attr(Entry.VOLUME_ID_ATTR))
+
+    def test_has_attr_autoexec(self):
+        entry = self.__root.get_entry(4)
+        self.assertFalse(entry.has_attr(Entry.HIDDEN_ATTR))
+        self.assertFalse(entry.has_attr(Entry.SYSTEM_ATTR))
+        self.assertFalse(entry.has_attr(Entry.READ_ONLY_ATTR))
