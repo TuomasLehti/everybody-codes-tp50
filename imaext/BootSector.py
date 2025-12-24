@@ -5,6 +5,7 @@ class BootSector(Block):
     SECTOR_SIZE_OFS = 0x0b
     NUM_OF_RESERVED_SECTORS_OFS = 0x0e
     NUM_OF_FATS_OFS = 0x10
+    NUM_OF_ROOT_DIRECTORY_ENTRIES_OFS = 0x11
     FAT_SIZE_OFS = 0x16
     LABEL_OFS = 0x2b
     LABEL_LEN = 11
@@ -73,7 +74,12 @@ class BootSector(Block):
         """Returns the offset of the root directory."""
         num_fats = self.get_num_of_fats()
         fat_size = self.get_fat_size()
-        block_size = self.get_block_size()
+        block_size = self.get_sector_size()
         return (1 + num_fats * fat_size)  * block_size
 
 
+    def get_num_of_root_dir_entries(
+        self
+    ) -> int:
+        """Returns the number of root directory entries."""
+        return self.get_word(self.NUM_OF_ROOT_DIRECTORY_ENTRIES_OFS)
