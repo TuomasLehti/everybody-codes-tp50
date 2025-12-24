@@ -41,3 +41,7 @@ class TestEntry(unittest.TestCase):
         self.assertEqual(creation.day, 11)
         self.assertEqual(creation.hour, 5)
         self.assertEqual(creation.minute, 0)
+
+    def test_get_first_cluster_idx(self):
+        entry = self.__root.get_entry(4)
+        self.assertEqual(entry.get_first_cluster_idx(), 0xec)

@@ -74,3 +74,8 @@ class Entry(Block):
         )
         return datetime.combine(d, t)
     
+
+    def get_first_cluster_idx(
+        self
+    ) -> int:
+        return self.get_word(self.__FIRST_CLUSTER_IDX_OFS)
