@@ -45,3 +45,25 @@ class TestEntry(unittest.TestCase):
     def test_get_first_cluster_idx(self):
         entry = self.__root.get_entry(4)
         self.assertEqual(entry.get_first_cluster_idx(), 0xec)
+
+    def test_is_available(self):
+        entry = self.__root.get_entry(7)
+        self.assertTrue(entry.is_available())
+        entry = self.__root.get_entry(6)
+        self.assertTrue(entry.is_available())
+        entry = self.__root.get_entry(5)
+        self.assertFalse(entry.is_available())
+
+    def test_is_deleted(self):
+        entry = self.__root.get_entry(7)
+        self.assertFalse(entry.is_deleted())
+        entry = self.__root.get_entry(6)
+        self.assertTrue(entry.is_deleted())
+        entry = self.__root.get_entry(5)
+        self.assertFalse(entry.is_deleted())
+
+    def test_is_last_entry(self):
+        entry = self.__root.get_entry(7)
+        self.assertTrue(entry.is_last_entry())
+        entry = self.__root.get_entry(6)
+        self.assertFalse(entry.is_last_entry())

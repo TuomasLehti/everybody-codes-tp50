@@ -57,6 +57,32 @@ class Entry(Block):
         return self.get_byte(self.__ATTRIBUTES_OFS) & attribute == attribute
     
 
+    def is_deleted(
+        self
+    ) -> bool:
+        return self.get_byte(self.__FILENAME_OFS) == 0xE5
+    
+
+    def is_last_entry(
+        self
+    ) -> bool:
+        return self.get_byte(self.__FILENAME_OFS) == 0x00
+    
+
+    def is_available(
+        self
+    ) -> bool:
+        """Returns the availability of an entry. An entry is available if it
+        has not been used at all or if it is deleted."""
+        return self.is_last_entry() or self.is_deleted()
+    
+
+    def is_dot_entry(
+        self
+    ) -> bool:
+        return self.get_byte(self.__FILENAME_OFS) == 0x2E
+    
+
     def get_modification_time(
         self
     ) -> datetime:
