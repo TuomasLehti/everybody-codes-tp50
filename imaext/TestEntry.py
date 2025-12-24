@@ -32,3 +32,12 @@ class TestEntry(unittest.TestCase):
         self.assertFalse(entry.has_attr(Entry.HIDDEN_ATTR))
         self.assertFalse(entry.has_attr(Entry.SYSTEM_ATTR))
         self.assertFalse(entry.has_attr(Entry.READ_ONLY_ATTR))
+
+    def test_get_modofication_time(self):
+        entry = self.__root.get_entry(0)
+        creation = entry.get_modification_time()
+        self.assertEqual(creation.year, 1991)
+        self.assertEqual(creation.month, 11)
+        self.assertEqual(creation.day, 11)
+        self.assertEqual(creation.hour, 5)
+        self.assertEqual(creation.minute, 0)
