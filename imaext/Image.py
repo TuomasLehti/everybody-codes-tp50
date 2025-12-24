@@ -1,5 +1,7 @@
 from Block import Block
 from BootSector import BootSector
+from Directory import Directory
+from Entry import Entry
 from FileAllocationTable import FileAllocationTable
 
 class Image(Block):
@@ -22,6 +24,10 @@ class Image(Block):
         self.file_allocation_table = FileAllocationTable(self.get_bytes(
             self.boot_sector.get_fat_ofs(),
             self.boot_sector.get_sector_size() * self.boot_sector.get_fat_size()
+        ))
+        self.root_directory = Directory(self.get_bytes(
+            self.boot_sector.get_root_dir_ofs(),
+            self.boot_sector.get_num_of_root_dir_entries() * Entry.ENTRY_SIZE
         ))
 
     

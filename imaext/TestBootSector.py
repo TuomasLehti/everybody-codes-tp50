@@ -26,5 +26,8 @@ class TestBootSector(unittest.TestCase):
     def test_get_fat_ofs(self):
         self.assertEqual(self.__boot_sector.get_fat_ofs(), 512)
 
+    def test_get_num_of_root_directory_entries(self):
+        self.assertEqual(self.__boot_sector.get_num_of_root_dir_entries(), 224)
+
 if __name__ == '__main__':
     unittest.main()
