@@ -1,5 +1,6 @@
 from Block import Block
 from BootSector import BootSector
+from FileAllocationTable import FileAllocationTable
 
 class Image(Block):
 
@@ -17,6 +18,10 @@ class Image(Block):
         """
         with open(filename, 'rb') as file:
             super().__init__(bytearray(file.read()))
-        self.boot_sector = BootSector(self.get_block(0, 512))
+        self.boot_sector = BootSector(self.get_bytes(0, 512))
+        self.file_allocation_table = FileAllocationTable(self.get_bytes(
+            self.boot_sector.get_fat_ofs(),
+            self.boot_sector.get_sector_size() * self.boot_sector.get_fat_size()
+        ))
 
     
