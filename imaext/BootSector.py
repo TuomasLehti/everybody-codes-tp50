@@ -3,6 +3,7 @@ from Block import Block
 class BootSector(Block):
 
     SECTOR_SIZE_OFS = 0x0b
+    CLUSTER_SIZE_OFS = 0x0d
     NUM_OF_RESERVED_SECTORS_OFS = 0x0e
     NUM_OF_FATS_OFS = 0x10
     NUM_OF_ROOT_DIRECTORY_ENTRIES_OFS = 0x11
@@ -37,6 +38,13 @@ class BootSector(Block):
     ) -> int:
         """Returns the number of bytes in a (logical) sector."""
         return self.get_word(BootSector.SECTOR_SIZE_OFS)
+    
+
+    def get_cluster_size(
+        self
+    ) -> int:
+        """Returns the number of sectors per cluster."""
+        return self.get_byte(BootSector.CLUSTER_SIZE_OFS)
     
 
     def get_num_of_reserved_sectors(

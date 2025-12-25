@@ -17,6 +17,9 @@ class TestBootSector(unittest.TestCase):
     def test_get_sector_size(self):
         self.assertEqual(self.__boot_sector.get_sector_size(), 512)
 
+    def test_get_cluster_size(self):
+        self.assertEqual(self.__boot_sector.get_cluster_size(), 1)
+
     def test_get_reserved_sectors(self):
         self.assertEqual(self.__boot_sector.get_num_of_reserved_sectors(), 1)
 

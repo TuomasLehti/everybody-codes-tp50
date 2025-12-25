@@ -39,3 +39,24 @@ class Image(Block):
         fat_size = self.boot_sector.get_fat_size()
         block_size = self.boot_sector.get_sector_size()
         return (1 + num_fats * fat_size)  * block_size
+
+
+    def get_data_region_ofs(
+        self,
+    ) -> int:
+        num_of_entries = self.boot_sector.get_num_of_root_dir_entries() 
+        root_dir_size = num_of_entries * Entry.ENTRY_SIZE
+        sector_size = self.boot_sector.get_sector_size()
+        root_dir_sectors = (root_dir_size + sector_size - 1) // sector_size
+        return self.get_root_dir_ofs() + root_dir_sectors * sector_size
+    
+
+    def get_cluster_ofs(
+        self,
+        cluster_idx : int
+    ) -> int:
+        corrected_cluster_idx = cluster_idx - 2
+        return (
+            self.get_data_region_ofs()
+            + self.boot_sector.get_cluster_size() * corrected_cluster_idx
+        )

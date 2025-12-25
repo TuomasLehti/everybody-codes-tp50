@@ -1,6 +1,17 @@
 import unittest
 from Image import Image
 
-def test_get_root_dir_ofs(self):
-    image = Image('civboot.ima')
-    self.assertEqual(image.get_root_dir_ofs, 0x2600)
+class TestImage(unittest.TestCase):
+
+    def test_get_root_dir_ofs(self):
+        image = Image('civboot.ima')
+        self.assertEqual(image.get_root_dir_ofs(), 0x2600)
+
+    def test_get_data_region_ofs(self):
+        image = Image('civboot.ima')
+        self.assertEqual(image.get_data_region_ofs(), 0x4200)
+
+    def test_get_cluster_idx(self):
+        image = Image('civboot.ima')
+        self.assertEqual(image.get_cluster_ofs(2), 0x4200)
+        self.assertEqual(image.get_cluster_ofs(3), 0x4400)
