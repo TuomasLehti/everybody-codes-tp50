@@ -26,8 +26,16 @@ class Image(Block):
             self.boot_sector.get_sector_size() * self.boot_sector.get_fat_size()
         ))
         self.root_directory = Directory(self.get_bytes(
-            self.boot_sector.get_root_dir_ofs(),
+            self.get_root_dir_ofs(),
             self.boot_sector.get_num_of_root_dir_entries() * Entry.ENTRY_SIZE
         ))
-
     
+
+    def get_root_dir_ofs(
+        self
+    ) -> int:
+        """Returns the offset of the root directory."""
+        num_fats = self.boot_sector.get_num_of_fats()
+        fat_size = self.boot_sector.get_fat_size()
+        block_size = self.boot_sector.get_sector_size()
+        return (1 + num_fats * fat_size)  * block_size

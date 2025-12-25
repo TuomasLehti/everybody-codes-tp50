@@ -66,16 +66,6 @@ class BootSector(Block):
     ) -> int:
         """Returns the offset of the first file allocation table."""
         return self.get_sector_size() * self.get_num_of_reserved_sectors()
-    
-
-    def get_root_dir_ofs(
-        self
-    ) -> int:
-        """Returns the offset of the root directory."""
-        num_fats = self.get_num_of_fats()
-        fat_size = self.get_fat_size()
-        block_size = self.get_sector_size()
-        return (1 + num_fats * fat_size)  * block_size
 
 
     def get_num_of_root_dir_entries(
