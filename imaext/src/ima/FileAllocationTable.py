@@ -1,5 +1,5 @@
 from typing import List
-from Block import Block
+from src.ima.Block import Block
 
 
 class FileAllocationTable(Block):

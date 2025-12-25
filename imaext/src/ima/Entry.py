@@ -1,5 +1,5 @@
 from datetime import datetime, date, time
-from Block import Block
+from src.ima.Block import Block
 
 class Entry(Block):
 

@@ -1,5 +1,5 @@
 import unittest
-from Image import Image
+from src.ima.Image import Image
 
 class TestImage(unittest.TestCase):
 

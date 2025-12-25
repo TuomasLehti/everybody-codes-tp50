@@ -1,6 +1,6 @@
 import unittest
-from Entry import Entry
-from Image import Image
+from src.ima.Entry import Entry
+from src.ima.Image import Image
 
 class TestEntry(unittest.TestCase):
 

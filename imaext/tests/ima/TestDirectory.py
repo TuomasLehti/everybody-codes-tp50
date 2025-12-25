@@ -1,8 +1,7 @@
 import unittest
-from Entry import Entry
-from Directory import Directory
-
-from Image import Image
+from src.ima.Entry import Entry
+from src.ima.Directory import Directory
+from src.ima.Image import Image
 
 
 class TestDirectory(unittest.TestCase):

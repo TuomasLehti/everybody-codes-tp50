@@ -1,5 +1,5 @@
 import unittest
-from Block import Block
+from src.ima.Block import Block
 
 class TestBlock(unittest.TestCase):
 

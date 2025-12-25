@@ -1,6 +1,6 @@
 from typing import List
-from Block import Block
-from Entry import Entry
+from src.ima.Block import Block
+from src.ima.Entry import Entry
 
 class Directory(Block):
 

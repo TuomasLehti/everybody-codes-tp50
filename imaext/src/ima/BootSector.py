@@ -1,4 +1,4 @@
-from Block import Block
+from src.ima.Block import Block
 
 class BootSector(Block):
 

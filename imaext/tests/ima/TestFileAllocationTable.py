@@ -1,6 +1,6 @@
 from typing import List
 import unittest
-from Image import Image
+from src.ima.Image import Image
 
 class TestBootSector(unittest.TestCase):
 
@@ -13,8 +13,3 @@ class TestBootSector(unittest.TestCase):
     def test_get_chain(self):
         chain : List[int] = self.__fat.get_chain(2)
         self.assertEqual(chain[-1], 67)
-
-
-if __name__ == '__main__':
-    image = Image("civboot.ima")
-    image.file_allocation_table.print_fat()

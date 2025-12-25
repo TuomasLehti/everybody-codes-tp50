@@ -1,9 +1,9 @@
 from typing import List, Tuple
-from Block import Block
-from BootSector import BootSector
-from Directory import Directory
-from Entry import Entry
-from FileAllocationTable import FileAllocationTable
+from src.ima.Block import Block
+from src.ima.BootSector import BootSector
+from src.ima.Directory import Directory
+from src.ima.Entry import Entry
+from src.ima.FileAllocationTable import FileAllocationTable
 
 class Image(Block):
 
@@ -61,7 +61,9 @@ class Image(Block):
         corrected_cluster_idx = cluster_idx - 2
         return (
             self.get_data_region_ofs()
-            + self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size() * corrected_cluster_idx
+            + self.boot_sector.get_cluster_size() 
+              * self.boot_sector.get_sector_size() 
+              * corrected_cluster_idx
         )
     
 
