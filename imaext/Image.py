@@ -76,12 +76,7 @@ class Image(Block):
                 self.get_cluster_ofs(cluster_idx),
                 self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size()
             ))
-            for idx in range(0, 16):
-                entry = dir.get_entry(idx)
-                if entry.is_last_entry():
-                    break
-                if not entry.is_deleted():
-                    entries.append(entry)
+            entries.extend(dir.get_entries())
         return entries
     
 
