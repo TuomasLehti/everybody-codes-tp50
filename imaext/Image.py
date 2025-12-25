@@ -44,6 +44,7 @@ class Image(Block):
     def get_data_region_ofs(
         self,
     ) -> int:
+        """Returns the offset of the data region."""
         num_of_entries = self.boot_sector.get_num_of_root_dir_entries() 
         root_dir_size = num_of_entries * Entry.ENTRY_SIZE
         sector_size = self.boot_sector.get_sector_size()
@@ -55,8 +56,32 @@ class Image(Block):
         self,
         cluster_idx : int
     ) -> int:
+        """Returns the offset of a certain cluster."""
         corrected_cluster_idx = cluster_idx - 2
         return (
             self.get_data_region_ofs()
-            + self.boot_sector.get_cluster_size() * corrected_cluster_idx
+            + self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size() * corrected_cluster_idx
         )
+    
+
+    def get_file(
+        self,
+        entry : Entry
+    ) -> bytearray:
+        """Returns a file from the image."""
+        start = entry.get_first_cluster_idx()
+        cluster_bytes = (
+            self.boot_sector.get_cluster_size() 
+            * self.boot_sector.get_sector_size()
+        )
+        chain = self.file_allocation_table.get_chain(start)
+        bytes = self.get_bytes(
+            self.get_cluster_ofs(start),
+            cluster_bytes
+        )
+        for fat_idx in chain:
+            bytes.extend(self.get_bytes(
+                self.get_cluster_ofs(fat_idx),
+                cluster_bytes
+            ))
+        return bytes[0:entry.get_size()]
