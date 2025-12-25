@@ -1,3 +1,4 @@
+from typing import List
 from Block import Block
 from BootSector import BootSector
 from Directory import Directory
@@ -62,6 +63,26 @@ class Image(Block):
             self.get_data_region_ofs()
             + self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size() * corrected_cluster_idx
         )
+    
+
+    def get_file_entries(
+        self,
+        first_cluster_idx
+    ) -> List[Entry]:
+        entries : List[Entry] = []
+        chain = self.file_allocation_table.get_chain(first_cluster_idx)
+        for cluster_idx in chain:
+            dir = Directory(self.get_bytes(
+                self.get_cluster_ofs(cluster_idx),
+                self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size()
+            ))
+            for idx in range(0, 16):
+                entry = dir.get_entry(idx)
+                if entry.is_last_entry():
+                    break
+                if not entry.is_deleted():
+                    entries.append(entry)
+        return entries
     
 
     def get_file(
