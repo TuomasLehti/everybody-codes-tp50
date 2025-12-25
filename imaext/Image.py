@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from Block import Block
 from BootSector import BootSector
 from Directory import Directory
@@ -67,15 +67,27 @@ class Image(Block):
 
     def get_file_entries(
         self,
-        first_cluster_idx
+        first_cluster_idx : int
     ) -> List[Entry]:
+        """Gets all file entries across multiple directory clusters. Set
+        argument to -1 if you want to get the entries of the root directory,
+        otherwise it should be the first cluster idx of the directory in
+        question."""
         entries : List[Entry] = []
-        chain = self.file_allocation_table.get_chain(first_cluster_idx)
-        for cluster_idx in chain:
-            dir = Directory(self.get_bytes(
-                self.get_cluster_ofs(cluster_idx),
-                self.boot_sector.get_cluster_size() * self.boot_sector.get_sector_size()
+        offsets : List[Tuple[int, int]] = []
+        if first_cluster_idx == -1:
+            offsets.append((
+                self.get_root_dir_ofs(),
+                self.boot_sector.get_num_of_root_dir_entries() * Entry.ENTRY_SIZE
             ))
+        else:
+            chain = self.file_allocation_table.get_chain(first_cluster_idx)
+            offsets = [(
+                self.get_cluster_ofs(cluster_idx),
+                16 * Entry.ENTRY_SIZE
+                ) for cluster_idx in chain]
+        for ofs, size in offsets:
+            dir = Directory(self.get_bytes(ofs, size))
             entries.extend(dir.get_entries())
         return entries
     
