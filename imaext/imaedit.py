@@ -1,4 +1,5 @@
 import argparse
+from src.imaedit.ExtractCommand import ExtractCommand
 from src.imaedit.ListCommand import ListCommand
 
 
@@ -19,11 +20,8 @@ def parse_args() -> argparse.Namespace:
         required=True
     )
     ListCommand.register(subparsers)
+    ExtractCommand.register(subparsers)
     return parser.parse_args()
-
-
-    
-
 
 
 def main():
@@ -33,10 +31,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-#disk = Image(IMA_FILENAME)
-#print("Disk label:", disk.boot_sector.get_label(), end="\n\n")
-#entries = disk.get_file_entries(disk.root_directory.get_entry(0).get_first_cluster_idx())
-#dir(entries)
-#print(str(disk.get_file(disk.root_directory.get_entry(4)), encoding="ascii"))
