@@ -5,7 +5,7 @@ class TestBlock(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open("small.bin", "br") as file:
+        with open("tests/data/small.bin", "br") as file:
             cls._block = Block(bytearray(file.read()))
 
     def test_get_byte(self):

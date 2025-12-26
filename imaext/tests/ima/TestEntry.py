@@ -6,7 +6,7 @@ class TestEntry(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__image = Image("civboot.ima")
+        cls.__image = Image("tests/data/civboot.ima")
         cls.__root = cls.__image.root_directory
 
     def test_get_name(self):

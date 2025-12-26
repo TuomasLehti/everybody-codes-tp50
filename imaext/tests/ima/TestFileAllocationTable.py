@@ -6,7 +6,7 @@ class TestBootSector(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__image = Image("civboot.ima")
+        cls.__image = Image("tests/data/civboot.ima")
         cls.__fat = cls.__image.file_allocation_table
 
 

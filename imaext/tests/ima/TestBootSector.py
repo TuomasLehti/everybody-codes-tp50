@@ -5,7 +5,7 @@ class TestBootSector(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.__image = Image("civboot.ima")
+        cls.__image = Image("tests/data/civboot.ima")
         cls.__boot_sector = cls.__image.boot_sector
 
     def test_get_label(self):
