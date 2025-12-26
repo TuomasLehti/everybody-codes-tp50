@@ -1,6 +1,7 @@
 import argparse
 from src.imaedit.ExtractCommand import ExtractCommand
 from src.imaedit.ListCommand import ListCommand
+#from imaext import __version__
 
 
 """
@@ -13,7 +14,7 @@ https://www.tavi.co.uk/phobos/fat.html
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="imaedit",
-        description="Extract from and edit files on a 1.44 Mb IMA disk image"
+        description="Extract files from a 1.44 Mb IMA disk image"
     )
     subparsers = parser.add_subparsers(
         dest="command",

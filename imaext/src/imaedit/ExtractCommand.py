@@ -17,28 +17,28 @@ class ExtractCommand:
             "extract",
             help="Extract files from the disk image",
             description=
-                "Extracts the contents of the disk image into the destination"
-                "directory. Existing files are not overwritten unless the"
-                "image contains a newer version."
+                "Extracts the contents of the disk image into the destination directory.\n"
+                "Existing files are not overwritten unless the image contains a newer\n"
+                "version."
         )
         parser.add_argument(
             "image",
-            help="Disk image file"
+            help="the name of the disk image file"
         )
         parser.add_argument(
             "destination",
             nargs="?",
             default=".",
-            help="Destination directory (default: current directory)"
+            help="destination directory (default: current directory)"
         )
         parser.add_argument(
             "-v", "--verbose",
-            help="Logs every file",
+            help="also list skipped files",
             action="store_true"
         )
         parser.add_argument(
             "-q", "--quiet",
-            help="No logging",
+            help="suppress output",
             action="store_true"
         )
         parser.set_defaults(
