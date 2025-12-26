@@ -11,10 +11,18 @@ https://www.tavi.co.uk/phobos/fat.html
 """
 
 
+__version__ = "1.0.0"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="imaedit",
         description="Extract files from a 1.44 Mb IMA disk image"
+    )
+    parser.add_argument(
+        "-V", "--version",
+        action="version",
+        version=f"%(prog)s {__version__}"
     )
     subparsers = parser.add_subparsers(
         dest="command",
