@@ -39,19 +39,19 @@ class ListCommand:
         cls,
         disk: Image,
         entries: List[Entry],
-        depth: int = 0
+        prefix: str = ''
     ):
-        for idx, entry in enumerate(entries):
-            print('│   ' * depth, end="")
+         for idx, entry in enumerate(entries):
+            print(prefix, end="")
             if idx < len(entries) - 1:
                 print('├── ', end="")
             else:
                 print('└── ', end="")
-            print(
-                entry.get_file_name(),
-                entry.get_size(),
-                entry.get_modification_time(),
-            )
-            if entry.has_attr(Entry.DIRECTORY_ATTR) and not entry.is_dot_entry():
-                entries = disk.get_file_entries(entry.get_first_cluster_idx())
-                cls.dir(disk, entries, depth + 1)
+            print(entry)
+            if (entry.has_attr(Entry.DIRECTORY_ATTR)) and (not entry.is_dot_entry()):
+                new_entries = disk.get_file_entries(entry.get_first_cluster_idx())
+                cls.dir(
+                    disk, 
+                    new_entries, 
+                    prefix + ('│   ' if idx < len(entries) - 1 else '    ')
+                )

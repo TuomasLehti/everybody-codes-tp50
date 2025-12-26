@@ -33,10 +33,12 @@ class Entry(Block):
         self
     ) -> str:
         """Returns the name of the file in 8.3 format."""
+        name = self.get_string(self.__FILENAME_OFS, self.__FILENAME_LEN)
+        ext = self.get_string(self.__EXTENSION_OFS, self.__EXTENSION_LEN)
         return (
-            self.get_string(self.__FILENAME_OFS, self.__FILENAME_LEN)
-            + '.'
-            + self.get_string(self.__EXTENSION_OFS, self.__EXTENSION_LEN)
+            name
+            + ('.' if not ext == '' else '')
+            + ext
         )
     
 
@@ -105,3 +107,17 @@ class Entry(Block):
         self
     ) -> int:
         return self.get_word(self.__FIRST_CLUSTER_IDX_OFS)
+    
+
+    def __str__(
+        self
+    ) -> str:
+        if not self.has_attr(Entry.DIRECTORY_ATTR):
+            size_str = f"{str(self.get_size()):>7}"
+        else:
+            size_str =  " <DIR> "
+        return (
+            f"{self.get_file_name():<12} "
+            f"{size_str} "
+            f"{self.get_modification_time()}"
+        )
