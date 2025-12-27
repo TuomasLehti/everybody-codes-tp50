@@ -15,16 +15,16 @@ const
   ansiEsc =    Chr(27);
 
   ansReset =   ansiEsc + '[m';
-  ansFgDkBlk = ansiEsc + '[30m';
+  ansFgBlk =   ansiEsc + '[30m';
   ansFgDkRed = ansiEsc + '[31m';
   ansFgDkGrn = ansiEsc + '[32m';
   ansFgDkYel = ansiEsc + '[33m';
   ansFgDkBlu = ansiEsc + '[34m';
   ansFgDkMag = ansiEsc + '[35m';
   ansFgDkCya = ansiEsc + '[36m';
-  ansFgDkWht = ansiEsc + '[37m';
+  ansFgGry   = ansiEsc + '[37m';
 
-  ansFgBlk =   ansiEsc + '[1;30m';
+  ansFgDkGry = ansiEsc + '[1;30m';
   ansFgRed =   ansiEsc + '[1;31m';
   ansFgGrn =   ansiEsc + '[1;32m';
   ansFgYel =   ansiEsc + '[1;33m';
@@ -45,7 +45,15 @@ const
 
 
 type
-  TLogLevel = (logSolve, logDebug, logWarn);
+
+{
+  Log levels.
+  logSolve : When a solver starts it should log at the first possible moment.
+  lofWarn: When something goes wrong.
+  logInto: When everything is flowing normally.
+  logDebug: Debug information, not necessarily always shown.
+}
+  TLogLevel = (logSolve, logWarn, logInfo, logDebug);
 
 
 
@@ -90,8 +98,9 @@ procedure Log(
 begin
   case Level of
     logSolve : Write(ansFgBlu);
-    logDebug : Write(ansFgDkWht);
+    logDebug : Write(ansFgDkGry);
     logWarn  : Write(ansFgRed);
+    logInfo  : Write(ansFgGry);
     else       Write(ansReset);
   end;
   Write(GetIsoTimeStamp, '  ', Msg);
@@ -99,4 +108,3 @@ begin
 end;
 
 
-end.
