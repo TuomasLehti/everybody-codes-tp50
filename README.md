@@ -33,10 +33,41 @@ Advent of Code as well. I may also add some code from [Internationalization
 puzzles](https://i18n-puzzles.com/). Tips for other programming puzzle sites
 are always welcome.
 
-## Imaext
+## Imaedit
 
-Imaext is a silly little disk image extractor to make the interoperability
+Imaedit is a silly little disk image extractor to make the interoperability
 between the emulator and a modern git interface easier.
+
+### Synopsis
+
+```imaedit [-h] [-V] {list,extract} image.ima [destination]```
+
+### Commands
+
+list
+: list files in a disk image
+
+extract
+: extract files from a disk image
+
+### Global Options
+
+-h, --help
+: show help and exit
+
+-v, --version
+: show the version number of the program and exit
+
+### Extract
+
+Extracts the contents of the disk image into the destination directory.
+Existing files are not overwritten unless the image contains a newer version.
+
+-q, --quiet
+: suppress output
+
+-v, --verbose
+: also list skipped files
 
 ## License
 
