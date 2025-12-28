@@ -80,7 +80,7 @@ class ExtractCommand:
          os.makedirs(destpath / curpath, exist_ok=True)
          for idx, entry in enumerate(entries):
             new_name = curpath / entry.get_file_name()
-            if entry.is_dot_entry():
+            if entry.is_dot_entry() or entry.has_attr(Entry.VOLUME_ID_ATTR):
                 continue
             if entry.has_attr(Entry.DIRECTORY_ATTR):
                 new_entries = disk.get_file_entries(entry.get_first_cluster_idx())
