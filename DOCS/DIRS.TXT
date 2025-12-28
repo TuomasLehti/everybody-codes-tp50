@@ -1,0 +1,60 @@
+DIRS 1.0.0 - directory functions recursively
+
+
+Usage
+
+
+  DIRS <command> [source] [destination]
+
+
+Commands
+
+
+  DIR - lists directory entries
+
+  DEL - deletes files
+
+  RD or RMDIR - removes directories
+
+  COPY - recreates directory structure and copies files
+
+
+Source
+
+
+  Defines the source directory, which is the starting point for processing
+  the files and subdirectories. If no source directory is given, the
+  processing starts from the current directory.
+
+  A file name mask with wildcards can also be given. It must be given
+  directly after the source directory, no spaces, as if the whole source
+  argument is a fully qualified file name.
+
+  If no mask is given, all files will be processed.
+
+
+Destination
+
+
+  Defines the destination directory in much the same way as the source
+  directory is given. The only exception is that a file name mask is not
+  allowed.
+
+  It is important to note that the destination directory must not be a
+  subdirectory of the source directory!
+
+
+Examples
+
+
+  DIRS DIR
+
+    Lists all files in the current directory and its subdirectories.
+
+  DIRS DIR SRC\*.PAS
+
+    Lists all the Pascal source code in SRC-subdirectory and its subdirs.
+
+  DIRS DIR A:\*.EXE
+
+    Lists all the executables on the disk in the A drive.
