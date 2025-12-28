@@ -1,7 +1,6 @@
 import argparse
 from src.imaedit.ExtractCommand import ExtractCommand
 from src.imaedit.ListCommand import ListCommand
-#from imaext import __version__
 
 
 """
@@ -11,7 +10,7 @@ https://www.tavi.co.uk/phobos/fat.html
 """
 
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 def parse_args() -> argparse.Namespace:
