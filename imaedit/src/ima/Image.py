@@ -105,10 +105,11 @@ class Image(Block):
             * self.boot_sector.get_sector_size()
         )
         chain = self.file_allocation_table.get_chain(start)
-        bytes = self.get_bytes(
-            self.get_cluster_ofs(start),
-            cluster_bytes
-        )
+#        bytes = self.get_bytes(
+#            self.get_cluster_ofs(start),
+#            cluster_bytes
+#        )
+        bytes = bytearray()
         for fat_idx in chain:
             bytes.extend(self.get_bytes(
                 self.get_cluster_ofs(fat_idx),
