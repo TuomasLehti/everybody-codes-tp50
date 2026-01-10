@@ -8,6 +8,34 @@ unit Strs;
 
 interface
 
+{
+  ---------------------------------------------------------------------------
+  StrBegins
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Determines if a string begins with another string.
+
+  Parameters
+
+    Str        The string from which the prefix is searched.
+
+    Suffix     The prefix to search for.
+
+    Returns    True if Str begins with Suffix.
+
+  Remarks
+
+    If the length of either of the strings is zero, return false.
+
+}
+function StrBegins(
+  Str,
+  Prefix : String
+) : Boolean;
+
+
 
 {
   ---------------------------------------------------------------------------
@@ -93,6 +121,24 @@ function LeftPad(
 
 
 implementation
+
+
+
+function StrBegins(
+  Str,
+  Prefix : String
+) : Boolean;
+
+begin
+  if (Length(Str) = 0) or (Length(Prefix) = 0) then
+  begin
+    StrBegins := false
+  end
+  else
+  begin
+    StrBegins := Prefix = Copy(Str, 1, Length(Prefix));
+  end
+end;
 
 
 

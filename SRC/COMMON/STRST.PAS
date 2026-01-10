@@ -13,6 +13,80 @@ uses
 implementation
 
 
+function Test_StrBegins_PrefixFound(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  Str, Prefix : String;
+
+begin
+  Str := 'Hello, world!';
+  Prefix := 'Hello';
+  Test_StrBegins_PrefixFound := StrBegins(Str, Prefix);
+end;
+
+
+
+function Test_StrBegins_PrefixNotFound(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  Str, Prefix : String;
+
+begin
+  Str := 'Hello, world!';
+  Prefix := 'olleh';
+  Test_StrBegins_PrefixNotFound := not StrBegins(Str, Prefix);
+end;
+
+
+
+function Test_StrBegins_OneCharPrefix(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  Str, Prefix : String;
+
+begin
+  Str := 'Hello, world!';
+  Prefix := 'H';
+  Test_StrBegins_OneCharPrefix := StrBegins(Str, Prefix);
+end;
+
+
+
+function Test_StrBegins_ZeroCharPrefix(
+  Test : TTestPtr
+) : Boolean;
+
+begin
+  Test_StrBegins_ZeroCharPrefix := not StrBegins('Hello!', '');
+end;
+
+
+
+function Test_StrBegins_ZeroCharStr(
+  Test : TTestPtr
+) : Boolean;
+
+begin
+  Test_StrBegins_ZeroCharStr := not StrBegins('', 'world');
+end;
+
+
+
+function Test_StrBegins_ZeroLengths(
+  Test : TTestPtr
+) : Boolean;
+
+begin
+  Test_StrBegins_ZeroLengths := not StrBegins('', '');
+end;
+
+
 
 function Test_StrEnds_SuffixFound(
   Test : TTestPtr
@@ -187,7 +261,38 @@ end;
 
 
 
+
+
+
+
+
 begin
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'Prefix found',
+    Test_StrBegins_PrefixFound)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'Prefix not found',
+    Test_StrBegins_PrefixNotFound)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'One-char prefix',
+    Test_StrBegins_OneCharPrefix)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'Zero-length prefix',
+    Test_StrBegins_ZeroCharPrefix)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'Zero-length string',
+    Test_StrBegins_ZeroCharStr)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrBegins', 'Zero-length parameters',
+    Test_StrBegins_ZeroLengths)
+  );
+
+
   RegisterTest(CreateTest(
     'Strs', 'StrEnds', 'Suffix found',
     Test_StrEnds_SuffixFound)
@@ -212,6 +317,8 @@ begin
     'Strs', 'StrEnds', 'Zero-length parameters',
     Test_StrEnds_ZeroLengths)
   );
+
+
   RegisterTest(CreateTest(
     'Strs', 'IntToStr', 'Converts Byte',
     Test_IntToStr_Byte)
@@ -220,6 +327,8 @@ begin
     'Strs', 'IntToStr', 'Converts negative LongInmt',
     Test_IntToStr_LongIntNeg)
   );
+
+
   RegisterTest(CreateTest(
     'Strs', 'LeftPad', 'Pads correctly',
     Test_LeftPad_Normal)
