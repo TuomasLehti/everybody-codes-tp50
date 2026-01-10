@@ -1,3 +1,19 @@
+{
+  This unit provides logging functionality.
+
+  The default behaviour is to log to a file, whose name is hard-coded,
+  and to the screen. This is very likely to change in the near future, so
+  don't depend on it.
+
+  Additional loggers can be added with the RegisterLogger-procedure. Up to
+  six additional loggers (eight total) can be registered. Loggers can't
+  be unregistered at this time.
+
+  Everything will be logged, no verbose or quiet flags implemented yet.
+  These will eventually be implemented.
+}
+
+{$F+}
 unit Logging;
 
 
@@ -46,26 +62,76 @@ const
 
 type
 
-{
-  Log levels.
-  logSolve : When a solver starts it should log at the first possible moment.
-  lofWarn: When something goes wrong.
-  logInto: When everything is flowing normally.
-  logDebug: Debug information, not necessarily always shown.
-}
-  TLogLevel = (logSolve, logWarn, logInfo, logDebug);
+  {
+    Log levels.
+
+    logDebug:
+
+      Messages logging the internal workings and state of a solver. Could be
+      used to log the progress of a long process.
+
+    logInfo:
+
+      Messages logging the normal flow of the program.
+
+    logWarn:
+
+      Warnings. Something has gone wrong, but the solver will try to
+      continue executing.
+
+    logError:
+
+      Unrecoverable errors. A crash is very likely.
+
+  }
+  TLogLvl = (logDebug, logInfo, logWarn, logError);
 
 
 
-function GetIsoTimeStamp : String;
+  TLogEvent = record
+    Lvl : TLogLvl;
+    Msg : String;
+  end;
 
 
 
-procedure Log(Level : TLogLevel; Msg : String);
+  TLogger = procedure(
+    Event : TLogEvent
+  );
+
+
+
+procedure RegisterLogger(
+  Logger : TLogger
+);
+
+
+
+function GetIsoTimeStamp
+: String;
+
+
+
+procedure Log(
+  Level : TLogLvl;
+  Msg : String
+);
 
 
 
 implementation
+
+
+
+type
+  TLoggerArr = array[1..8] of TLogger;
+
+
+
+var
+  Loggers : TLoggerArr;
+  NumLoggers : Byte;
+
 
 
 
@@ -91,20 +157,94 @@ end;
 
 
 procedure Log(
-  Level : TLogLevel;
+  Level : TLogLvl;
   Msg : String
 );
 
+var
+  Event : TLogEvent;
+  I : Byte;
+
 begin
-  case Level of
-    logSolve : Write(ansFgBlu);
+  Event.Lvl := Level;
+  Event.Msg := Msg;
+  for I := 1 to numLoggers do
+    Loggers[I](Event);
+end;
+
+
+
+procedure ScreenLog(
+  Event : TLogEvent
+);
+
+begin
+  case Event.Lvl of
     logDebug : Write(ansFgDkGry);
-    logWarn  : Write(ansFgRed);
     logInfo  : Write(ansFgGry);
+    logWarn  : Write(ansFgYel);
+    logError : Write(ansFgRed);
     else       Write(ansReset);
   end;
-  Write(GetIsoTimeStamp, '  ', Msg);
+  Write(GetIsoTimeStamp, '  ', Event.Msg);
   WriteLn(ansReset);
 end;
 
 
+
+procedure FileLog(
+  Event : TLogEvent
+);
+
+  function LvlToChr(Lvl : TLogLvl) : Char;
+  begin
+    case Lvl of
+      logDebug : LvlToChr := 'D';
+      logInfo  : LvlToChr := 'I';
+      logWarn  : LvlToChr := 'W';
+      logError : LvlToChr := 'E';
+      else       LvlToChr := '?';
+    end;
+  end;
+
+const
+  LogFnm = 'LOGG.LOG';
+
+var
+  Logg : Text;
+
+begin
+  Assign(Logg, LogFnm);
+  {$I-} Append(Logg); {$I+}
+  if IOResult > 0 then Rewrite(Logg);
+  WriteLn(Logg,
+    GetIsoTimeStamp, '|',
+    LvlToChr(Event.Lvl), '|',
+    Event.Msg
+  );
+  Close(Logg);
+end;
+
+
+
+procedure RegisterLogger(
+  Logger : TLogger
+);
+
+begin
+  if NumLoggers < 8 then
+  begin
+    NumLoggers := NumLoggers + 1;
+    Loggers[NumLoggers] := Logger;
+  end
+  else
+    Writeln('Unable to register logger.');
+end;
+
+
+
+begin
+  NumLoggers := 0;
+  RegisterLogger(ScreenLog);
+  RegisterLogger(FileLog);
+end.
