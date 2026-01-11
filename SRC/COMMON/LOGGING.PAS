@@ -119,6 +119,17 @@ procedure Log(
 
 
 
+procedure ScreenLog(
+  Event : TLogEvent
+);
+
+
+
+procedure FileLog(
+  Event : TLogEvent
+);
+
+
 implementation
 
 
