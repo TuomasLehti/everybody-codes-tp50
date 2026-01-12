@@ -1,4 +1,4 @@
-DIRS 1.0.0 - directory functions recursively
+DIRS 1.1.0 - directory functions recursively
 
 
 Usage
@@ -17,6 +17,9 @@ Commands
   RD or RMDIR - removes directories
 
   COPY - recreates directory structure and copies files
+
+  BACKUP - like copy but copies only files which are newer than the ones
+           in the destination
 
 
 Source

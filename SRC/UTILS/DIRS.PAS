@@ -242,6 +242,61 @@ end;
 
 
 {
+  A runner for backing up files. Works pretty much the same way as
+  CopyRunner, but copies only files which are newer than their counterparts
+  in the destination directory.
+}
+procedure BackupRunner(
+  FData : SearchRec;
+  CurPath : String;
+  DestPath : String
+);
+
+var
+  Path, SrcFnm, DestFnm : String;
+  DestFInfo : SearchRec;
+
+begin
+  if ((FData.Attr and Directory) = Directory)
+     and (not IsDotFnm(FData.Name)) then
+  begin
+    Path := FExpand(DestPath + CurPath + FData.Name + '\');
+    Path := Copy(Path, 1, Length(Path) - 1);
+    if not FExists(Path) then
+    begin
+      Writeln('mkdir ' + Path);
+      MkDir(Path);
+    end
+    else
+      Writeln('exists ' + Path);
+
+  end
+  else
+  begin
+    SrcFnm := FExpand(CurPath + FData.Name);
+    DestFnm := FExpand(DestPath + CurPath + FData.Name);
+
+    FindFirst(DestFnm, AnyFile, DestFInfo);
+    if (DosError = 0) and (DestFInfo.Time > FData.Time) then
+    begin
+      Writeln(
+        'skip ' + FExpand(CurPath + FData.Name)
+      );
+    end
+    else
+    begin
+      Writeln(
+        'copy ' + FExpand(CurPath + FData.Name) +
+        ' to ' + FExpand(DestPath + CurPath + FData.Name)
+      );
+      FCopy(SrcFnm, DestFnm);
+    end;
+  end;
+end;
+
+
+
+{
   Parse the command part of command line arguments.
 }
 procedure ParseCommand(
@@ -269,6 +324,11 @@ begin
   begin
     Params.RecMode := topDown;
     Params.Runner := CopyRunner;
+  end
+  else if ParamStr(1) = 'BACKUP' then
+  begin
+    Params.RecMode := topDown;
+    Params.Runner := BackupRunner;
   end
   else
   begin
@@ -428,7 +488,7 @@ var
 
 
 begin
-  Writeln('DIRS.EXE 1.0.0');
+  Writeln('DIRS.EXE 1.1.0');
   Writeln;
   Writeln('Performs functions on a directory recursively.');
   Writeln;
