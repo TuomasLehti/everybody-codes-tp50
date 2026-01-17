@@ -13,6 +13,7 @@ uses
 implementation
 
 
+
 function Test_StrBegins_PrefixFound(
   Test : TTestPtr
 ) : Boolean;
@@ -199,6 +200,60 @@ end;
 
 
 
+function Test_StrToInt(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str = '1234';
+  Expected = 1234;
+
+var
+  Got : Integer;
+
+begin
+  Got := StrToInt(Str);
+  Test_StrToInt := Got = Expected;
+end;
+
+
+
+function Test_StrToInt_Neg(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str = '-2109876543';
+  Expected : LongInt = -2109876543;
+
+var
+  Got : LongInt;
+
+begin
+  Got := StrToInt(Str);
+  Test^.ErrorMsg := '';
+  Test_StrToInt_Neg := Got = Expected;
+end;
+
+
+
+function Test_StrToInt_Err(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str = '210.012';
+
+var
+  Got : Integer;
+
+begin
+  Got := StrToInt(Str);
+  Test_StrToInt_Err := StrResult = strErrNumFormat;
+end;
+
+
+
 function Test_LeftPad_Normal(
   Test : TTestPtr
 ) : Boolean;
@@ -259,8 +314,98 @@ end;
 
 
 
+function Test_StrCopyChr(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str = 'Hello, world!';
+  Splitter = ',';
+  Expected = 'Hello';
+
+var
+  Got : String;
+
+begin
+  Got := StrCopyChr(Str, Splitter);
+  if Got <> Expected then
+    Test^.ErrorMsg := 'Expected "' + Expected + '", got "' + Got + '"';
+  Test_StrCopyChr:= Got = Expected;
+end;
 
 
+
+function Test_StrCopyChr_SplitterNotFound(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str = 'Hello, world!';
+  Splitter = 'xyz';
+  Expected = 'Hello, world!';
+
+var
+  Got : String;
+
+begin
+  Got := StrCopyChr(Str, Splitter);
+  if Got <> Expected then
+    Test^.ErrorMsg := 'Expected "' + Expected + '", got "' + Got + '"';
+  Test_StrCopyChr_SplitterNotFound:= Got = Expected;
+end;
+
+
+
+function Test_StrCutChr(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str : String = 'Hello, world!';
+  Splitter = ', ';
+  Expected = 'Hello';
+  ExpectedOrig = 'world!';
+
+var
+  Got : String;
+
+begin
+  Got := StrCutChr(Str, Splitter);
+  if (Got <> Expected) or (Str <> ExpectedOrig) then
+    Test^.ErrorMsg :=
+      'Expected "' + Expected + '" ' +
+      'and "' + ExpectedOrig + '", ' +
+      + '"got "' + Got + '" ' +
+      'and "' + Str + '"';
+  Test_StrCutChr := (Got = Expected) and (Str = ExpectedOrig);
+end;
+
+
+
+function Test_StrCutChr_SplitterNotFound(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Str : String = 'Hello, world!';
+  Splitter = 'xyz';
+  Expected = 'Hello, world!';
+  ExpectedOrig = '';
+
+var
+  Got : String;
+
+begin
+  Got := StrCutChr(Str, Splitter);
+  if Got <> Expected then
+    Test^.ErrorMsg :=
+      'Expected "' + Expected + '" ' +
+      'and "' + ExpectedOrig + '", ' +
+      + '"got "' + Got + '" ' +
+      'and "' + Str + '"';
+  Test_StrCutChr_SplitterNotFound :=
+    (Got = Expected) and (Str = ExpectedOrig);
+end;
 
 
 
@@ -330,6 +475,20 @@ begin
 
 
   RegisterTest(CreateTest(
+    'Strs', 'StrToInt', 'Converts correctly',
+    Test_StrToInt)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrToInt', 'Converts negative',
+    Test_StrToInt_Neg)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrToInt', 'Reports errors',
+    Test_StrToInt_Err)
+  );
+
+
+  RegisterTest(CreateTest(
     'Strs', 'LeftPad', 'Pads correctly',
     Test_LeftPad_Normal)
   );
@@ -341,4 +500,27 @@ begin
     'Strs', 'LeftPad', 'Source string too long',
     Test_LeftPad_TooLong)
   );
+
+
+  RegisterTest(CreateTest(
+    'Strs', 'StrCopyChr', 'Splitter found',
+    Test_StrCopyChr)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrCopyChr', 'Splitter not found',
+      Test_StrCopyChr_SplitterNotFound)
+  );
+
+
+  RegisterTest(CreateTest(
+    'Strs', 'StrCutChr', 'Splitter found',
+    Test_StrCutChr)
+  );
+  RegisterTest(CreateTest(
+    'Strs', 'StrCutChr', 'Splitter not found',
+      Test_StrCutChr_SplitterNotFound)
+  );
+
+
+
 end.

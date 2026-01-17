@@ -8,6 +8,17 @@ unit Strs;
 
 interface
 
+
+
+const
+  strOk = 0;
+  strErrNumFormat = 1;
+
+var
+  StrResult : ShortInt;
+
+
+
 {
   ---------------------------------------------------------------------------
   StrBegins
@@ -92,6 +103,34 @@ function IntToStr(
 
 {
   ---------------------------------------------------------------------------
+  StrToInt
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Converts a string into an integer.
+
+  Parameters
+
+    Str        The string to convert.
+
+  Remarks
+
+    A convenience function to save a variable when the resulting string is
+    used as a parameter in another function or procedure.
+
+    Logs an error message if the conversion doesn't succeed. The result of
+    the conversion is returned in the StrResult variable.
+}
+
+function StrToInt(
+  Str : String
+) : LongInt;
+
+
+
+{
+  ---------------------------------------------------------------------------
   LeftPad
   ---------------------------------------------------------------------------
 
@@ -116,6 +155,71 @@ function LeftPad(
   S : String;
   Len : Word;
   Filler : Char
+) : String;
+
+
+
+{
+  ---------------------------------------------------------------------------
+  StrCopyChr
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Copies a substring from the beginning of the original string.
+
+  Parameters
+
+    Src        The original string.
+
+    Splitter   A string which marks the end of the substring.
+
+    Returns    The substring.
+
+  Remarks
+
+    The length of the substring is defined by the position of the splitter.
+    The original string doesn't change.
+
+    If the splitter is not found inside the original string, returns the
+    original string.
+}
+function StrCopyChr(
+  Src : String;
+  Splitter : String
+) : String;
+
+
+
+{
+  ---------------------------------------------------------------------------
+  StrCutChr
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Cuts a substring from the beginning of the original string.
+
+  Parameters
+
+    Src        The original string.
+
+    Splitter   A string which marks the end of the substring.
+
+    Returns    The substring.
+
+  Remarks
+
+    The length of the substring is defined by the position of the splitter.
+    The substring and the splitter are removed from the original string.
+
+    If the splitter is not found inside the original string, returns the
+    original string, and the original string is emptied.
+}
+
+function StrCutChr(
+  var Src : String;
+  Splitter : String
 ) : String;
 
 
@@ -182,6 +286,27 @@ end;
 
 
 
+function StrToInt(
+  Str : String
+) : LongInt;
+
+var
+  I : LongInt;
+  E, Ee : Integer;
+
+begin
+  Val(Str, I, E);
+  if E > 0 then
+  begin
+{    Log(logWarn, 'Number format error in "' + Str + '" at ' + IntToStr(E));}
+    Writeln('Number format error in "' + Str + '" at ' + IntToStr(E));
+    StrResult := strErrNumFormat;
+  end;
+  StrToInt := I;
+end;
+
+
+
 function LeftPad(
   S : String;
   Len : Word;
@@ -198,6 +323,38 @@ begin
   LeftPad := T;
 end;
 
+
+
+function StrCopyChr(
+  Src : String;
+  Splitter : String
+) : String;
+
+var
+  Idx : Byte;
+
+begin
+  Idx := Pos(Splitter, Src);
+  if Idx <= 0 then
+    Idx := Length(Src) + 1;
+  StrCopyChr := Copy(Src, 1, Idx - 1);
+end;
+
+
+
+function StrCutChr(
+  var Src : String;
+  Splitter : String
+) : String;
+
+var
+  Res : String;
+
+begin
+  Res := StrCopyChr(Src, Splitter);
+  Delete(Src, 1, Length(Res) + Length(Splitter));
+  StrCutChr := Res;
+end;
 
 
 end.
