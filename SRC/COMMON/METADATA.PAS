@@ -67,6 +67,11 @@ function InpEof
 
 
 
+function InpEol
+: Boolean;
+
+
+
 procedure CloseInput;
 
 
@@ -232,6 +237,7 @@ begin
     + '\INPUT'
     + Copy(Metadata.Id, 7, 2)
     + '.TXT';
+  Fnm := Metadata.InputFilename[1];
   if not FExists(Fnm) then
   begin
     Log(logWarn, Fnm + ' not found');
@@ -271,7 +277,24 @@ end;
 function ReadInpStr
 : String;
 
+var
+  Start : Word;
+  Len : Byte;
+  Res : String;
+
 begin
+  Start := AocInp.Pos;
+  while (not InpEof) and (not InpEol) do
+    AocInp.Pos := AocInp.Pos + 1;
+
+  Len := AocInp.Pos - Start;
+  Move(AocInp.Inp^[Start], Res[1], Len);
+  Res[0] := Chr(Len);
+  ReadInpStr := Res;
+
+  repeat
+    AocInp.Pos := AocInp.Pos + 1;
+  until InpEof or (not InpEol)
 end;
 
 
@@ -284,6 +307,15 @@ begin
     InpEof := Pos > Size;
 end;
 
+
+
+function InpEol
+: Boolean;
+
+begin
+  with AocInp do
+    InpEol := (Inp^[Pos] = #13) or (Inp^[Pos] = #10);
+end;
 
 
 procedure CloseInput;
