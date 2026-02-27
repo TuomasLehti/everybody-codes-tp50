@@ -145,20 +145,19 @@ var
   Name : String;
 
 begin
-  Log(logSolve, 'Testing begun');
+  Log(logInfo, 'Running all tests');
   for I := 1 to NumTests do
   with Tests[I]^ do
   begin
     Name := UnitName + '.' + ProcName + ': ' + TestName;
     if Tests[I]^.TestFunc(Tests[I]) then
-      Log(logDebug, Name + ' passed')
+      Log(logInfo, Name + ' passed')
     else
     begin
       Log(logWarn, Name + ' failed');
       Log(logWarn, ErrorMsg);
     end;
   end;
-  Log(logSolve, 'Testing ended');
 end;
 
 

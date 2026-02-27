@@ -1,7 +1,7 @@
 program Test;
 
 uses
-  Testing, StrsT;
+  Testing, StrsT, Md5T;
 
 begin
   RunAllTests;
