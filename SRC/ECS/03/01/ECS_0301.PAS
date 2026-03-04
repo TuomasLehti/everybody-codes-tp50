@@ -1,6 +1,13 @@
 {
 
-  A solver for Everybody Codes, story 3, parts 1 and 2.
+  A solver for Everybody Codes, story 3.
+
+  The approach with a linked list is slightly overkill for such a small
+  puzzle, but it simplifies the solving procedures, which do not have
+  to know the amount of rows in the input.
+
+  The goal in the long run is to separate the linked list logic into a
+  separate unit among other common data structures.
 
   This solver was written 4.3.2026.
 
@@ -59,10 +66,28 @@ end;
 
 type
 
+{
+  Each scale is represented as a record. Id is the identifier of the scale
+  and R, G, B the color components. S is for the level of shine, which
+  is needed in parts 2 and 3.
+}
 
   TScaleRec = record
     Id : LongInt;
     R, G, B, S : Byte;
+  end;
+
+
+{
+  Scales are stored in a singly-linked list, because the number of them
+  varies between different parts.
+}
+
+  PScaleNode = ^TScaleNode;
+
+  TScaleNode = record
+    Scale : TScaleRec;
+    Next : PScaleNode;
   end;
 
 
@@ -103,6 +128,88 @@ begin
 end;
 
 
+{
+  ---------------------------------------------------------------------------
+  InputToScaleList
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Reads the scales from the puzzle input and returns the head of a singly
+    linked list of scale records.
+
+  Remarks
+
+    The puzzle input must be opened and closed by the calling procedure.
+    The linked list must be destroyed by the calling procedure.
+}
+
+function InputToScaleList
+: PScaleNode;
+
+var
+  Head, Tail, Node : PScaleNode;
+
+begin
+  Head := nil;
+  Tail := nil;
+  while not InpEof do
+  begin
+
+    { Read a scale and construct a new node. }
+    New(Node);
+    with Node^ do
+    begin
+      InputToScale(ReadInpStr, Scale);
+      Next := nil;
+    end;
+
+    { If the list is empty, set the node as the first node. }
+    if Head = nil then
+    begin
+      Head := Node;
+      Tail := node;
+    end
+
+    { Otherwise append the node to the end of the list. }
+    else
+    begin
+      Tail^.Next := Node;
+      Tail := Node;
+    end;
+
+  end;
+  InputToScaleList := Head;
+end;
+
+
+{
+  ---------------------------------------------------------------------------
+  DestroyScaleList
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Frees the memory allocated for the singly linked list of scales.
+}
+
+procedure DestroyScaleList(
+  var Head : PScaleNode
+);
+
+var
+  Tmp : PScaleNode;
+
+begin
+  Tmp := Head;
+  while Tmp <> nil do
+  begin
+    Head := Tmp^.Next;
+    Dispose(Tmp);
+    Tmp := Head;
+  end;
+end;
+
 
 {
   ---------------------------------------------------------------------------
@@ -124,19 +231,23 @@ function SolvePt1(
 
 var
   Ans : LongInt;
-  Line : String;
-  Scale : TScaleRec;
+  Node, Scales : PScaleNode;
 
 begin
   OpenInput(Meta, 1);
+  Scales := InputToScaleList;
+
   Ans := 0;
-  while not InpEof do
+  Node := Scales;
+  while Node <> nil do
   begin
-    Line := ReadInpStr;
-    InputToScale(Line, Scale);
-    if (Scale.G > Scale.R) and (Scale.G > Scale.B) then
-      Ans := Ans + Scale.Id;
+    with Node^.Scale do
+      if (G > R) and (G > B) then
+        Ans := Ans + Id;
+    Node := Node^.Next;
   end;
+
+  DestroyScaleList(Scales);
   CloseInput;
   SolvePt1 := Ans;
 end;
@@ -161,49 +272,45 @@ function SolvePt2(
   Meta : TMetadata
 ) : LongInt;
 
-const
-  NumScales = 256;
-
-type
-  TScaleArr = array[1..NumScales] of TScaleRec;
-  PScaleArr = ^TScaleArr;
-
 var
   Ans : LongInt;
-  Line : String;
-  Idx : Word;
-  Scales : PScaleArr;
   MaxShine, MinDarkness : Byte;
   DarkestId : Word;
+  Node, Scales : PScaleNode;
 
 begin
   OpenInput(Meta, 2);
-  New(Scales);
+  Scales := InputToScaleList;
 
   { The scales need to be examined more than once, which is why this is
     done in multiple passes. }
 
-  for Idx := 1 to NumScales do
-    InputToScale(ReadInpStr, Scales^[Idx]);
-
   MaxShine := 0;
-  for Idx := 1 to NumScales do
-    with Scales^[Idx] do
+  Node := Scales;
+  while Node <> nil do
+  begin
+    with Node^.Scale do
       if S > MaxShine then
         MaxShine := S;
+    Node := Node^.Next;
+  end;
 
   MinDarkness := 255;
-  for Idx := 1 to NumScales do
-    with Scales^[Idx] do
+  Node := Scales;
+  while Node <> nil do
+  begin
+    with Node^.Scale do
       if S = MaxShine then
         if (R + G + B) < MinDarkness then
         begin
           MinDarkness := R + G + B;
           DarkestId := Id;
         end;
+    Node := Node^.Next;
+  end;
 
   SolvePt2 := DarkestId;
-  Dispose(Scales);
+  DestroyScaleList(Scales);
   CloseInput;
 end;
 
@@ -294,30 +401,29 @@ type
 
 var
   Ans : LongInt;
-  Line : String;
-  Idx : Word;
-  Scales : PScaleArr;
   MaxShine, MinDarkness : Byte;
   DarkestId : Word;
   GroupSizes : array[TColorGroup] of Word;
   Grp, LargestGrp : TColorGroup;
   LargestGrpSize : Word;
+  Node, Scales : PScaleNode;
 
 begin
   OpenInput(Meta, 3);
-  New(Scales);
+  Scales := InputToScaleList;
 
   { The scales need to be examined more than once, which is why this is
     done in multiple passes. }
 
-  for Idx := 1 to NumScales do
-    InputToScale(ReadInpStr, Scales^[Idx]);
-
   for Grp := none to blueShiny do
     GroupSizes[Grp] := 0;
 
-  for Idx := 1 to NumScales do
-    Inc(GroupSizes[GetColorGrp(Scales^[Idx])]);
+  Node := Scales;
+  while Node <> nil do
+  begin
+    Inc(GroupSizes[GetColorGrp(Node^.Scale)]);
+    Node := Node^.Next;
+  end;
 
   LargestGrp := none;
   LargestGrpSize := 0;
@@ -329,13 +435,16 @@ begin
     end;
 
   Ans := 0;
-  for Idx := 1 to NumScales do
-    if GetColorGrp(Scales^[Idx]) = LargestGrp then
-      Ans := Ans + Scales^[Idx].Id;
-
+  Node := Scales;
+  while Node <> nil do
+  begin
+    if GetColorGrp(Node^.Scale) = LargestGrp then
+      Ans := Ans + Node^.Scale.Id;
+    Node := Node^.Next;
+  end;
 
   SolvePt3 := Ans;
-  Dispose(Scales);
+  DestroyScaleList(Scales);
   CloseInput;
 end;
 
