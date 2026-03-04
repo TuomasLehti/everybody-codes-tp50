@@ -272,6 +272,45 @@ function SolvePt2(
   Meta : TMetadata
 ) : LongInt;
 
+  function GetMaxShine(Scales : PScaleNode) : Byte;
+  var
+    Node : PScaleNode;
+    MaxShine : Byte;
+  begin
+    MaxShine := 0;
+    Node := Scales;
+    while Node <> nil do
+    begin
+      with Node^.Scale do
+        if S > MaxShine then
+          MaxShine := S;
+      Node := Node^.Next;
+    end;
+    GetMaxShine := MaxShine;
+  end;
+
+  function GetDarkestId(Scales : PScaleNode; MaxShine : Byte) : LongInt;
+  var
+    Node : PScaleNode;
+    MinDarkness : Byte;
+    DarkestId : Word;
+  begin
+    MinDarkness := 255;
+    Node := Scales;
+    while Node <> nil do
+    begin
+      with Node^.Scale do
+        if S = MaxShine then
+          if (R + G + B) < MinDarkness then
+          begin
+            MinDarkness := R + G + B;
+            DarkestId := Id;
+          end;
+      Node := Node^.Next;
+    end;
+    GetDarkestId := DarkestId;
+  end;
+
 var
   Ans : LongInt;
   MaxShine, MinDarkness : Byte;
@@ -282,94 +321,11 @@ begin
   OpenInput(Meta, 2);
   Scales := InputToScaleList;
 
-  { The scales need to be examined more than once, which is why this is
-    done in multiple passes. }
+  { This is done essentially in two passes. }
 
-  MaxShine := 0;
-  Node := Scales;
-  while Node <> nil do
-  begin
-    with Node^.Scale do
-      if S > MaxShine then
-        MaxShine := S;
-    Node := Node^.Next;
-  end;
-
-  MinDarkness := 255;
-  Node := Scales;
-  while Node <> nil do
-  begin
-    with Node^.Scale do
-      if S = MaxShine then
-        if (R + G + B) < MinDarkness then
-        begin
-          MinDarkness := R + G + B;
-          DarkestId := Id;
-        end;
-    Node := Node^.Next;
-  end;
-
-  SolvePt2 := DarkestId;
+  SolvePt2 := GetDarkestId(Scales, GetMaxShine(Scales));
   DestroyScaleList(Scales);
   CloseInput;
-end;
-
-
-type
-  TColorGroup = (
-    none,
-    redMatte, redShiny,
-    greenMatte, greenShiny,
-    blueMatte, blueShiny
-  );
-
-
-
-{
-  ---------------------------------------------------------------------------
-  GetColorGrp
-  ---------------------------------------------------------------------------
-
-  Function
-
-    Defines the color group of a scale.
-
-  Parameters
-
-    Scale      The metadata associated with this puzzle.
-}
-
-function GetColorGrp(
-  Scale : TScaleRec
-) : TColorGroup;
-
-var
-  Grp : TColorGroup;
-
-begin
-  with Scale do
-  begin
-    if (R > G) and (R > B) then
-      Grp := redMatte
-    else if (G > R) and (G > B) then
-      Grp := greenMatte
-    else if (B > R) and (B > G) then
-      Grp := blueMatte
-    else
-      Grp := none;
-
-    if Grp <> none then
-      if S >= 33 then
-        if Grp = redMatte then
-          Grp := redShiny
-        else if Grp = greenMatte then
-          Grp := greenShiny
-        else
-          Grp := blueShiny
-      else if S > 30 then
-        Grp := none;
-  end;
-  GetColorGrp := Grp;
 end;
 
 
@@ -392,58 +348,112 @@ function SolvePt3(
   Meta : TMetadata
 ) : LongInt;
 
-const
-  NumScales = 1024;
-
 type
-  TScaleArr = array[1..NumScales] of TScaleRec;
-  PScaleArr = ^TScaleArr;
+  TColorGroup = (
+    none,
+    redMatte, redShiny,
+    greenMatte, greenShiny,
+    blueMatte, blueShiny
+  );
+
+  TColGrpArr = array[TColorGroup] of Word;
+
+  function GetColorGrp(Scale : TScaleRec) : TColorGroup;
+  var
+    Grp : TColorGroup;
+  begin
+    with Scale do
+    begin
+      if (R > G) and (R > B) then
+        Grp := redMatte
+      else if (G > R) and (G > B) then
+        Grp := greenMatte
+      else if (B > R) and (B > G) then
+        Grp := blueMatte
+      else
+        Grp := none;
+      if Grp <> none then
+        if S >= 33 then
+          if Grp = redMatte then
+            Grp := redShiny
+          else if Grp = greenMatte then
+            Grp := greenShiny
+          else
+            Grp := blueShiny
+        else if S > 30 then
+          Grp := none;
+    end;
+    GetColorGrp := Grp;
+  end;
+
+  procedure ClrColGrpSizes(var ColGrpSizes : TColGrpArr);
+  var
+    Grp : TColorGroup;
+  begin
+    for Grp := none to blueShiny do
+      ColGrpSizes[Grp] := 0;
+  end;
+
+  procedure CountColGrps(Scales : PScaleNode; var ColGrpSzs : TColGrpArr);
+  var
+    Node : PScaleNode;
+  begin
+    Node := Scales;
+    while Node <> nil do
+    begin
+      Inc(ColGrpSzs[GetColorGrp(Node^.Scale)]);
+      Node := Node^.Next;
+    end;
+  end;
+
+  function GetLargestColGrp(Scales : PScaleNode; GrpSzs : TColGrpArr) : TColorGroup;
+  var
+    Node : PScaleNode;
+    LargestGrpSize : Word;
+    Grp, LargestGrp : TColorGroup;
+  begin
+    LargestGrp := none;
+    LargestGrpSize := 0;
+    for Grp := none to blueShiny do
+      if GrpSzs[Grp] > LargestGrpSize then
+      begin
+        LargestGrp := Grp;
+        LargestGrpSize := GrpSzs[Grp];
+      end;
+    GetLargestColGrp := LargestGrp;
+  end;
+
+  function SumIds(Scales : PScaleNode; Grp : TColorGroup) : LongInt;
+  var
+    Node : PScaleNode;
+    Ans : LongInt;
+  begin
+    Ans := 0;
+    Node := Scales;
+    while Node <> nil do
+    begin
+      if GetColorGrp(Node^.Scale) = Grp then
+        Ans := Ans + Node^.Scale.Id;
+      Node := Node^.Next;
+    end;
+    SumIds := Ans;
+  end;
 
 var
   Ans : LongInt;
-  MaxShine, MinDarkness : Byte;
-  DarkestId : Word;
-  GroupSizes : array[TColorGroup] of Word;
-  Grp, LargestGrp : TColorGroup;
-  LargestGrpSize : Word;
+  GroupSizes : TColGrpArr;
   Node, Scales : PScaleNode;
 
 begin
   OpenInput(Meta, 3);
   Scales := InputToScaleList;
+  ClrColGrpSizes(GroupSizes);
+  CountColGrps(Scales, GroupSizes);
+  SolvePt3 := SumIds(
+    Scales,
+    GetLargestColGrp(Scales, GroupSizes)
+  );
 
-  { The scales need to be examined more than once, which is why this is
-    done in multiple passes. }
-
-  for Grp := none to blueShiny do
-    GroupSizes[Grp] := 0;
-
-  Node := Scales;
-  while Node <> nil do
-  begin
-    Inc(GroupSizes[GetColorGrp(Node^.Scale)]);
-    Node := Node^.Next;
-  end;
-
-  LargestGrp := none;
-  LargestGrpSize := 0;
-  for Grp := none to blueShiny do
-    if GroupSizes[Grp] > LargestGrpSize then
-    begin
-      LargestGrp := Grp;
-      LargestGrpSize := GroupSizes[Grp];
-    end;
-
-  Ans := 0;
-  Node := Scales;
-  while Node <> nil do
-  begin
-    if GetColorGrp(Node^.Scale) = LargestGrp then
-      Ans := Ans + Node^.Scale.Id;
-    Node := Node^.Next;
-  end;
-
-  SolvePt3 := Ans;
   DestroyScaleList(Scales);
   CloseInput;
 end;
