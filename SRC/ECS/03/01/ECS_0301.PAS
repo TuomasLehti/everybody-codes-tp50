@@ -58,8 +58,10 @@ end;
 
 
 type
+
+
   TScaleRec = record
-    Id : Word;
+    Id : LongInt;
     R, G, B, S : Byte;
   end;
 
@@ -93,6 +95,11 @@ begin
   Scale.B := BinStrToLongInt(StrCutChr(Line, ' '), 'b', 'B');
   if Line <> '' then
     Scale.S := BinStrToLongInt(StrCutChr(Line, ' '), 's', 'S');
+
+  { The group of the color is determined in the process of solving part 3,
+    because it is something that is not present in the input and thus not
+    a concern of this parsing procedure. }
+
 end;
 
 
@@ -201,10 +208,142 @@ begin
 end;
 
 
+type
+  TColorGroup = (
+    none,
+    redMatte, redShiny,
+    greenMatte, greenShiny,
+    blueMatte, blueShiny
+  );
+
+
+
+{
+  ---------------------------------------------------------------------------
+  GetColorGrp
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Defines the color group of a scale.
+
+  Parameters
+
+    Scale      The metadata associated with this puzzle.
+}
+
+function GetColorGrp(
+  Scale : TScaleRec
+) : TColorGroup;
+
+var
+  Grp : TColorGroup;
+
+begin
+  with Scale do
+  begin
+    if (R > G) and (R > B) then
+      Grp := redMatte
+    else if (G > R) and (G > B) then
+      Grp := greenMatte
+    else if (B > R) and (B > G) then
+      Grp := blueMatte
+    else
+      Grp := none;
+
+    if Grp <> none then
+      if S >= 33 then
+        if Grp = redMatte then
+          Grp := redShiny
+        else if Grp = greenMatte then
+          Grp := greenShiny
+        else
+          Grp := blueShiny
+      else if S > 30 then
+        Grp := none;
+  end;
+  GetColorGrp := Grp;
+end;
+
+
+
+{
+  ---------------------------------------------------------------------------
+  SolvePt3
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Finds the sum of the ids of the scales in the most numerous color group.
+
+  Parameters
+
+    Meta       The metadata associated with this puzzle.
+}
+
+function SolvePt3(
+  Meta : TMetadata
+) : LongInt;
+
+const
+  NumScales = 1024;
+
+type
+  TScaleArr = array[1..NumScales] of TScaleRec;
+  PScaleArr = ^TScaleArr;
+
+var
+  Ans : LongInt;
+  Line : String;
+  Idx : Word;
+  Scales : PScaleArr;
+  MaxShine, MinDarkness : Byte;
+  DarkestId : Word;
+  GroupSizes : array[TColorGroup] of Word;
+  Grp, LargestGrp : TColorGroup;
+  LargestGrpSize : Word;
+
+begin
+  OpenInput(Meta, 3);
+  New(Scales);
+
+  { The scales need to be examined more than once, which is why this is
+    done in multiple passes. }
+
+  for Idx := 1 to NumScales do
+    InputToScale(ReadInpStr, Scales^[Idx]);
+
+  for Grp := none to blueShiny do
+    GroupSizes[Grp] := 0;
+
+  for Idx := 1 to NumScales do
+    Inc(GroupSizes[GetColorGrp(Scales^[Idx])]);
+
+  LargestGrp := none;
+  LargestGrpSize := 0;
+  for Grp := none to blueShiny do
+    if GroupSizes[Grp] > LargestGrpSize then
+    begin
+      LargestGrp := Grp;
+      LargestGrpSize := GroupSizes[Grp];
+    end;
+
+  Ans := 0;
+  for Idx := 1 to NumScales do
+    if GetColorGrp(Scales^[Idx]) = LargestGrp then
+      Ans := Ans + Scales^[Idx].Id;
+
+
+  SolvePt3 := Ans;
+  Dispose(Scales);
+  CloseInput;
+end;
+
+
 
 var
   Meta : TMetadata;
-  AnsPt1, AnsPt2 : LongInt;
+  AnsPt1, AnsPt2, AnsPt3 : LongInt;
 
 
 begin
@@ -215,5 +354,7 @@ begin
   LogAnswer(Meta, 1, IntToStr(AnsPt1));
   AnsPt2 := SolvePt2(Meta);
   LogAnswer(Meta, 2, IntToStr(AnsPt2));
+  AnsPt3 := SolvePt3(Meta);
+  LogAnswer(Meta, 3, IntToStr(AnsPt3));
 
 end.
