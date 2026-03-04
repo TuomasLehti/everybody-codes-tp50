@@ -25,7 +25,7 @@ begin
   ReadMetadata(Meta);
   LogStart(Meta);
 
-  OpenInput(Meta);
+  OpenInput(Meta, 1);
 
   AnsPt1 := 0;
   AnsPt2 := 0;

@@ -47,7 +47,8 @@ procedure ReadMetadata(
 
 
 procedure OpenInput(
-  Metadata : TMetadata
+  Metadata : TMetadata;
+  Part : Byte
 );
 
 
@@ -222,7 +223,8 @@ var
 
 
 procedure OpenInput(
-  Metadata : TMetadata
+  Metadata : TMetadata;
+  Part : Byte
 );
 
 var
@@ -237,7 +239,7 @@ begin
     + '\INPUT'
     + Copy(Metadata.Id, 7, 2)
     + '.TXT';
-  Fnm := Metadata.InputFilename[1];
+  Fnm := Metadata.InputFilename[Part];
   if not FExists(Fnm) then
   begin
     Log(logWarn, Fnm + ' not found');

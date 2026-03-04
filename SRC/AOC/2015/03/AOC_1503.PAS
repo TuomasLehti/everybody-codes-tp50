@@ -128,7 +128,7 @@ begin
   ReadMetadata(Meta);
   LogStart(Meta);
 
-  OpenInput(Meta);
+  OpenInput(Meta, 1);
 
   New(VisitedPt1);
   New(VisitedPt2);
@@ -144,7 +144,7 @@ begin
   while not InpEof do
   begin
     Idx := Idx + 1;
-    if (Idx mod 1000) = 0 then
+    if (Idx mod 10) = 0 then
       Log(logDebug, 'Move: ' + IntToStr(Idx));
     C := ReadInpChar;
 
