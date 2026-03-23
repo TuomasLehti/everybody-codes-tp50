@@ -1,0 +1,270 @@
+# FRMWRK #
+
+        A framework for solving coding puzzles.
+
+
+  ## General ##
+
+
+        A collection of units which make programming solvers for coding
+        puzzles easier.
+
+        - CmdLine: Command line parameters.
+        - Logging: Logging services.
+
+
+  ## Logging ##
+
+
+    ### Overview ###
+
+
+        In this framework logging serves two purposes.
+
+        First of all, it keeps the user up to date on the progess of
+        the solving process. The user gets informed which solver is
+        being run, what answer does the solver get, and if it is
+        correct.
+
+        If the solving takes a long time, which is inevitable given
+        the limitations, the solver should log periodic updates on
+        how far along the process is. Otherwise it could be hard to
+        tell, if a solver has ended up in an infinite loop or if it
+        is just overwhelmed.
+
+        The second purpose of logging is to exchange information
+        between solvers and programs which summarize the correctness
+        of and time used by different solvers over an event or even
+        multiple events of a coding puzzle site.
+
+        This two-foldedness of the logging has lead to the decision
+        of having a default logging strategy, which is taken into use
+        as soon as the Logging-unit is mentioned in the uses-section
+        of a solver. This automation lessens the amount of clutter in
+        the actual solvers.
+
+        This default strategy always logs to the screen. The amount of
+        logging can be controlled by two command line switches: /V
+        for verbose mode, which logs everything and /Q for quiet mode,
+        which logs only warnings and errors.
+
+        If a /L<filename>-switch is given on the command line, the
+        default strategy logs to a file as well. Everything is logged
+        to the file, including debug messages, because a summarizer
+        can sift through the messages at a quick pace and find the
+        ones with relevance.
+
+        The default logging strategy can be overriden by clearing the
+        default loggers and registering ones own ones.
+
+
+    ### Contents ###
+
+
+        Constants, types and variables:
+
+        - `TLogLvl`: An enumerated type to define the logging level.
+
+        - `TLogEvent`: A record to pass a logging message to procedures
+          and functions.
+
+        - `TLogOutputMode`: An enum to choose the amount of log
+          messages.
+
+        Basic logging with the default logging strategy:
+
+        - `Log`: Logs a message to all registered loggers.
+
+        - `SLog`: Logs a simple message using all registered loggers.
+
+        Registering ones own loggers:
+
+        - `TLogger`: A prototype procedure to log a message.
+
+        - `RegisterLogger`:
+
+        - `UnregisterAllLoggers`:
+
+
+    ### Constants, Types and Variables ###
+
+
+      #### TLogLvl ####
+
+
+        ##### Function #####
+
+        An enumerated type to define the logging level.
+
+        ##### Declaration #####
+
+        ```
+        TLogLvl = (logDebug, logInfo, logWarn, logError);
+        ```
+
+        ##### Values #####
+
+        - `logDebug`: Messages logging the internal workings and state
+          of a solver belong to this group. This should be used if
+          a real debugger is not available, or if the use of a real
+          debugger is impractical, for instance in a loop with hundreds
+          and thousands of repetitions.
+
+        - `logInfo`: Messages logging the normal flow of the program.
+          Results and timings of a solver belong here. This should also
+          be used for logging the progress of a lengthy process every n
+          iterations, so that it can be determined, how far along the
+          solver was when it crashed.
+
+        - `logWarn`: Warning messages should be logged, when an
+          unexpected state is encountered, The solver has the means to
+          continue executing, but the following progress might be
+          nonsense. Typical warning message contitions are missing
+          input files, wrong answers to the puzzles and failed unit
+          tests.
+
+        - `logError`: Error messages should be logged, when the
+          continuation of execution is in jeopardy.
+
+
+      #### TLogEvent - record ####
+
+
+        ##### Function #####
+
+        A record to pass a logging message to procedures and functions.
+
+        ##### Declaration #####
+
+        ```
+        TLogEvent = record
+          Lvl : TLogLvl;
+          Msg : String;
+        end;
+        ```
+
+        ##### Fields #####
+
+        - `Lvl`: The logging level.
+
+        - `Msg`: The message to be logged.
+
+        ##### Remarks #####
+
+        Using a record leaves room for future expansion. This record
+        might have more fields in the future, but the existing logger
+        procedures' signatures won't need to be updated. They just
+        don't act on the new information.
+
+
+      ####  TLogOutputMode ####
+
+
+        ##### Function #####
+
+        An enum to choose the amount of log messages.
+
+        ##### Declaration #####
+
+        ```
+        TLogOutputMode = (
+          logOutputQuiet,
+          logOutputNormal,
+          logOutputVerbose
+        );
+        ```
+
+        ##### Values #####
+
+        Users wish as to what they want to log. TLoggers can fulfill
+        this wish or disregard it.
+
+        - logOutputQuiet: Quiet mode. Only warnings and errors should be
+          logged.
+
+        - logOutputNormal: Normal mode. Everything except debug
+          messages should be logged.
+
+        - logOutputVerbose: Verbose mode. Everything should be logged.
+
+
+    ### Procedures and functions ###
+
+
+      #### Log - procedure ####
+
+
+        ##### Function #####
+
+        Logs a message to all registered loggers.
+
+        ##### Declaration #####
+
+        ```
+        procedure Log(
+          Event : TLogEvent
+        );
+        ```
+
+        ##### Parameters #####
+
+        - `Event`: The message to be logged.
+
+
+      #### SLog - procedure ####
+
+
+        ##### Function #####
+
+        Logs a simple message using all registered loggers.
+
+        ##### Declaration #####
+
+        ```
+        procedure SLog(
+          Level : TLogLvl;
+          Msg : String
+        );
+        ```
+
+        ##### Parameters #####
+
+        - `Level`: The logging level.
+
+        - `Msg`: The message to be logged.
+
+        ##### Remarks ######
+
+        A convenience method to remove the need to create a
+        `TLogEvent`-record. The flip side is that only the most
+        simple form of a message/event is supported.
+
+
+      #### TLogger - procedure prototype ####
+
+
+        ##### Function #####
+
+        A prototype procedure to log a message.
+
+        ##### Declaration ######
+
+        ```
+        TLogger = procedure(
+          Event : TLogEvent
+        );
+        ```
+
+        ##### Parameters ######
+
+        - `Event`: The event to be logged.
+
+        ##### Remarks ######
+
+        If the user wants to implement their own logger eg. for a
+        printer or a modem, they should implement a `TLogger` and
+        register it with the `RegisterLogger`-procedure.
+
+        A more thorough description of using custom loggers can be
+        found from another section.
+
