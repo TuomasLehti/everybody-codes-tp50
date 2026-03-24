@@ -77,13 +77,25 @@
 
         - `SLog`: Logs a simple message using all registered loggers.
 
+        The default loggers:
+
+        - `FileLog`: Logs to a file.
+
+        - `ScreenLog`: Logs to the screen.
+
         Registering ones own loggers:
+
+        - `GetIsoTimeStamp`: Returns the current date and time in the
+          ISO 8601 format.
+
+        - `GetLogOutputMode`: Returns the users wish on the amount of
+          logging output.
 
         - `TLogger`: A prototype procedure to log a message.
 
-        - `RegisterLogger`:
+        - `RegisterLogger`: Registers a logger.
 
-        - `UnregisterAllLoggers`:
+        - `UnregisterAllLoggers`: Removes all loggers.
 
 
     ### Constants, Types and Variables ###
@@ -191,6 +203,72 @@
     ### Procedures and functions ###
 
 
+      #### FileLog ####
+
+
+        ##### Function #####
+
+        Logs to a file.
+
+        ##### Declaration #####
+
+        ```
+        procedure FileLog(
+          Event : TLogEvent
+        );
+        ```
+
+
+        ##### Parameters #####
+
+        - `Event`: The logging event.
+
+        ##### Remarks #####
+
+        The file name should be provided by the command line switch /L.
+        If the file already exists, log messages are appended to the
+        end of it.
+
+
+      #### GetIsoTimeStamp  - function ####
+
+
+        ##### Function #####
+
+        Returns the current date and time in the ISO 8601 format.
+
+        ##### Declaration #####
+
+        ```
+        function GetIsoTimeStamp
+        : String;
+        ```
+
+        ##### Parameters #####
+
+        - Returns: The current date and time, format
+          "yyyy-mm-ddThh:mm:ss.ss".
+
+
+      #### GetLogOutputMode - function ####
+
+
+        ##### Function #####
+
+        Returns the users wish on the amount of logging output.
+
+        ##### Declaration #####
+
+        ```
+        function GetLogOutputMode
+        : TLogOutputMode;
+        ```
+
+        ##### Parameters #####
+
+        - Returns: The amount of logging wanted.
+
+
       #### Log - procedure ####
 
 
@@ -209,6 +287,62 @@
         ##### Parameters #####
 
         - `Event`: The message to be logged.
+
+
+      #### RegisterLogger - procedure ####
+
+
+        ##### Function #####
+
+        Registers a logger.
+
+        ##### Declaration #####
+
+        ```
+        procedure RegisterLogger(
+          Logger : TLogger
+        );
+        ```
+
+        ##### Parameters #####
+
+        - `Logger`: The logger to be registered.
+
+        ##### Remarks #####
+
+        A maximum of 8 loggers can be present at a time. If the user
+        tries to register more than that, an error message is printed.
+
+
+      #### ScreenLog - procedure ####
+
+
+        ##### Function #####
+
+        Logs to the screen.
+
+        ##### Declaration ######
+
+        ```
+        procedure ScreenLog(
+          Event : TLogEvent
+        );
+        ```
+
+        ##### Parameters ######
+
+        - `Event`: The logging event.
+
+        ##### Remarks #####
+
+        Coloring is hard-coded by logging level for now: dark gray for
+        debug, light gray for info, light yellow for warning and light
+        red for error.
+
+        If the selected logging level is quiet, only logs warnings and
+        errors. If the selected logging level is not defined, logs
+        everything but the debug messages. If the selected logging level
+        is verbose, logs everything.
 
 
       #### SLog - procedure ####
@@ -267,4 +401,18 @@
 
         A more thorough description of using custom loggers can be
         found from another section.
+
+
+      #### UnregisterAllLoggers ####
+
+
+        ##### Function ######
+
+        Removes all loggers.
+
+        ##### Declaration ######
+
+        ```
+        procedure UnregisterAllLoggers;
+        ```
 
