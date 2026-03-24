@@ -1,5 +1,6 @@
 # FRMWRK #
 
+
         A framework for solving coding puzzles.
 
 
@@ -11,6 +12,128 @@
 
         - CmdLine: Command line parameters.
         - Logging: Logging services.
+
+
+  ## CmdLine ##
+
+
+    ### Overview ###
+
+
+        A crude command line argument parser.
+
+        Supports plain arguments without switches:
+        ```
+        PROGRAM ARG
+        ```
+
+        Supports switches without values
+        ```
+        PROGRAM /Q
+        ```
+
+        Supports switches with values:
+        ```
+        PROGRAM /L<value>
+        ```
+
+        Arguments can't contain any spaces.
+
+        All plain argument should be at the start and after a switch
+        everything  should be a switch.
+
+        Supports 10 plain arguments and 10 switches at the moment. This
+        restriction may become less restrictive later. This restriction
+        will not become more restrictive at any point in time.
+
+
+    ### Contents ###
+
+
+        - `GetPlain`: Returns a plain argument.
+
+        - `GetSwitch`: Returns the value of a switch.
+
+        - `SwitchExists`: Checks if a switch has been given in the
+          command line.
+
+
+    ### Procedures and functions ###
+
+
+      #### GetPlain - function ####
+
+
+        ##### Function #####
+
+        Returns a plain argument.
+
+        ##### Declaration #####
+
+        ```
+        function GetPlain(
+          Idx : Byte
+        ): String;
+        ```
+
+        ##### Parameters #####
+
+        - `Idx`: The index of the argument.
+
+        - Returns: The argument.
+
+
+      #### GetSwitch - function ####
+
+
+        ##### Function #####
+
+        Returns the value of a switch.
+
+        ##### Declaration #####
+
+        ```
+        function GetSwitch(
+          S : String
+        ): String;
+        ```
+
+        ##### Parameters #####
+
+        - `S`: The switch.
+
+        - Returns: The value.
+
+        ##### Remarks #####
+
+        If there is no switch with a given value, returns an empty
+        string.
+
+
+      #### SwitchExists - function ####
+
+
+        ##### Function #####
+
+        Checks if a switch has been given in the command line.
+
+        ##### Declaration #####
+
+        ```
+        function SwitchExists(
+          S : String
+        ): Boolean;
+        ```
+
+        ##### Parameters #####
+
+        - `S`: The switch.
+
+        - Returns: True if a switch exists in the command line.
+
+        ##### Remarks #####
+
+        The switch in question may or may not have a value.
 
 
   ## Logging ##
