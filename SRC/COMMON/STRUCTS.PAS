@@ -438,7 +438,7 @@ begin
   else
   begin
     PopFromLnkLst := nil;
-    Log(logWarn, 'Tried to pop from an empty linked list.');
+    SLog(logWarn, 'Tried to pop from an empty linked list.');
   end;
 end;
 
@@ -477,7 +477,7 @@ begin
   else
   begin
     IterNext := nil;
-    Log(logWarn, 'Tried to iterate forward while at the end of the list.');
+    SLog(logWarn, 'Tried to iterate forward while at the end of the list.');
   end;
 end;
 

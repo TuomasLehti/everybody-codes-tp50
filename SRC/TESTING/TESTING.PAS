@@ -145,17 +145,17 @@ var
   Name : String;
 
 begin
-  Log(logInfo, 'Running all tests');
+  SLog(logInfo, 'Running all tests');
   for I := 1 to NumTests do
   with Tests[I]^ do
   begin
     Name := UnitName + '.' + ProcName + ': ' + TestName;
     if Tests[I]^.TestFunc(Tests[I]) then
-      Log(logInfo, Name + ' passed')
+      SLog(logInfo, Name + ' passed')
     else
     begin
-      Log(logWarn, Name + ' failed');
-      Log(logWarn, ErrorMsg);
+      SLog(logWarn, Name + ' failed');
+      SLog(logWarn, ErrorMsg);
     end;
   end;
 end;
