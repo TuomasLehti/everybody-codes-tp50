@@ -1,14 +1,12 @@
-{
-  Tests for the Md5 unit.
-}
-
 {$F+}
+
 
 unit Md5T;
 
 
 
 interface
+
 
 
 uses
@@ -20,178 +18,320 @@ implementation
 
 
 
-function Test_LongInt_Wraps(
-  Test : TTestPtr
-) : Boolean;
-
-begin
-  Test_LongInt_Wraps :=
-    (($FFFFFFFF + 1) = 0)
-    and (($7FFFFFFF + 1) = $80000000);
-end;
-
-
-
-function Test_LongInt_BitwiseAnd(
-  Test : TTestPtr
-) : Boolean;
-
-begin
-  Test_LongInt_BitwiseAnd :=
-    ($80000000 AND $FFFFFFFF) = $80000000;
-end;
-
-
-
-function Test_LongInt_BitwiseOr(
-  Test : TTestPtr
-) : Boolean;
-
-begin
-  Test_LongInt_BitwiseOr :=
-    ($80000000 OR $F0000000) = $F0000000;
-end;
-
-
-
-function Test_LongInt_BitwiseXor(
-  Test : TTestPtr
-) : Boolean;
-
-begin
-  Test_LongInt_BitwiseXor:=
-    ($AAAAAAAA XOR $55555555) = $FFFFFFFF;
-end;
-
-
-
-function Test_LongInt_BitwiseNot(
-  Test : TTestPtr
-) : Boolean;
-
-begin
-  Test_LongInt_BitwiseNot :=
-    (NOT $00000000) = $FFFFFFFF;
-end;
-
-
-
-function Test_Md5_Pow2(
+function Test_PadMsg_Empty(
   Test : TTestPtr
 ) : Boolean;
 
 const
-  Expecteds : array[0..31] of LongInt = (
-    $00000001,
-    $00000002,
-    $00000004,
-    $00000008,
-    $00000010,
-    $00000020,
-    $00000040,
-    $00000080,
-    $00000100,
-    $00000200,
-    $00000400,
-    $00000800,
-    $00001000,
-    $00002000,
-    $00004000,
-    $00008000,
-    $00010000,
-    $00020000,
-    $00040000,
-    $00080000,
-    $00100000,
-    $00200000,
-    $00400000,
-    $00800000,
-    $01000000,
-    $02000000,
-    $04000000,
-    $08000000,
-    $10000000,
-    $20000000,
-    $40000000,
-    $80000000
+  Expected : TMd5Msg = (
+    $80, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00
+  );
+
+var
+  Msg : TMd5Msg;
+  I : Byte;
+
+begin
+  Msg[0] := 0;
+
+  PadMsg(Msg);
+
+  for I := 0 to 63 do
+  begin
+    If Msg[I] <> Expected[I] then
+    begin
+      Test^.ErrorMsg :=
+        'Blocks differ at idx '
+        + IntToStr(I) + '.';
+      Test_PadMsg_Empty := false;
+      Exit;
+    end;
+  end;
+
+  Test_PadMsg_Empty := true;
+end;
+
+
+
+function Test_PadMsg_Hello(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Msg : TMd5Msg = (
+    Ord('H'), Ord('e'), Ord('l'), Ord('l'), Ord('o'), $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00
+  );
+
+  Expected : TMd5Msg = (
+    Ord('H'), Ord('e'), Ord('l'), Ord('l'), Ord('o'), $80, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    40, $00, $00, $00, $00, $00, $00, $00
   );
 
 var
   I : Byte;
 
 begin
-  for I := 0 to 31 do
-    if Pow2(I) <> Expecteds[I] then
+  PadMsg(Msg);
+
+  for I := 0 to 63 do
+  begin
+    If Msg[I] <> Expected[I] then
     begin
-      Test_Md5_Pow2 := false;
       Test^.ErrorMsg :=
-        'Pow2(' + IntToStr(I) + '): '
-        + 'Expected ' + LongIntToHexStr(Expecteds[I]) + ', ' +
-        + ' got ' + LongIntToHexStr(Pow2(I));
+        'Blocks differ at idx '
+        + IntToStr(I) + '.';
+      Test_PadMsg_Hello := false;
+      Exit;
     end;
+  end;
+
+  Test_PadMsg_Hello := true;
 end;
 
 
-
-function Test_Md5_LongIntToHexStr(
+function Test_PadMsg_TooLong(
   Test : TTestPtr
 ) : Boolean;
 
+const
+  Msg : TMd5Msg = (
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01
+  );
+
+  Expected : TMd5Msg = (
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $01,
+    $01, $01, $01, $01, $01, $01, $01, $80,
+    $B8, $01, $00, $00, $00, $00, $00, $00
+  );
+
+var
+  I : Byte;
+
 begin
-  Test_Md5_LongIntToHexStr :=
-    (LongIntToHexStr($12345678) = '12345678')
-    and (LongIntToHexStr($90ABCDEF) = '90ABCDEF');
+  PadMsg(Msg);
+
+  for I := 0 to 63 do
+  begin
+    If Msg[I] <> Expected[I] then
+    begin
+      Test^.ErrorMsg :=
+        'Blocks differ at idx '
+        + IntToStr(I) + '.';
+      Test_PadMsg_TooLong := false;
+      Exit;
+    end;
+  end;
+
+  Test_PadMsg_TooLong := true;
 end;
 
 
 
-function Test_Md5_RotateLeft(
+function Test_Md5_IntToHexStr(
   Test : TTestPtr
 ) : Boolean;
 
+const
+  Num = $00000000;
+
 begin
-  Test_Md5_RotateLeft :=
-    (RotateLeft($00000001, 1) = $00000002)
-    and (RotateLeft($00000001, 2) = $00000004)
-    and (RotateLeft($F00000F0, 4) = $00000F0F)
+  Test_Md5_IntToHexStr :=
+    (IntToHexStr($00000000) = '00000000')
+    and (IntToHexStr($01234567) = '01234567')
+    and (IntToHexStr($89ABCDEF) = '89ABCDEF');
+  Test^.ErrorMsg := IntToHexStr($01234567);
+
 end;
 
 
 
+function Test_Md5_LeftRotate(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  NumCases = 2;
+
+type
+  TLongIntArr = array[1..NumCases] of LongInt;
+
+const
+  Cases : TLongIntArr = (
+    $01020304,
+    $12345678
+  );
+
+  Expecteds : TLongIntArr = (
+    $10203040,
+    $23456781
+  );
+
+var
+  I : Byte;
+  Res : Boolean;
+
+begin
+  Res := true;
+  for I := 1 to NumCases do
+  begin
+    Res := Res and (LeftRotate(Cases[I], 4) = Expecteds[I]);
+    if not Res then
+    begin
+      Test^.ErrorMsg :=
+        IntToHexStr(Cases[I])
+        + ' : ' + IntToHexStr(LeftRotate(Cases[I], 4))
+        + ' =/= ' + IntToHexStr(Expecteds[I]);
+      Exit;
+    end;
+  end;
+  Test_Md5_LeftRotate := true;
+end;
+
+
+
+function Test_Md5_CountMd5_Prepadded(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Msg: TMd5Msg = (
+    $80, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00,
+    $00, $00, $00, $00, $00, $00, $00, $00
+  );
+
+  Expected = 'D41D8CD98F00B204E9800998ECF8427E';
+
+var
+  Got : String;
+
+begin
+  Got := CountMd5(Msg);
+  Test_Md5_CountMd5_Prepadded := Got = Expected;
+  if Got <> Expected then Test^.ErrorMsg := Got;
+end;
+
+
+
+function Test_Md5_CountMd5(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  NumCases = 3;
+
+type
+  TStringArr = array[1..NumCases] of String;
+
+const
+  Cases : TStringArr = (
+    '',
+    'hello',
+    'abcdef609043'
+  );
+
+  Expecteds : TStringArr = (
+    'D41D8CD98F00B204E9800998ECF8427E',
+    '5D41402ABC4B2A76B9719D911017C592',
+    '000001DBBFA3A5C83A2D506429C7B00E'
+  );
+
+var
+  I : Byte;
+  Res : Boolean;
+  Msg : TMd5Msg;
+  Hash : String;
+
+begin
+  Res := true;
+  for I := 1 to NumCases do
+  begin
+    StrToMd5Msg(Cases[I], Msg);
+    Hash := CountMd5(Msg);
+    Res := Res and (Hash = Expecteds[I]);
+    if not Res then
+    begin
+      Test^.ErrorMsg :=
+        Cases[I]
+        + ' : Got ' + Hash
+        + ' =/= Expected ' + Expecteds[I];
+      Test_Md5_CountMd5 := false;
+      Exit;
+    end;
+  end;
+  Test_Md5_CountMd5 := true;
+end;
+
+
 begin
   RegisterTest(CreateTest(
-    'Md5', 'LongInt', 'LongInt wraps like uint32',
-    Test_LongInt_Wraps
+    'Md5', 'PadMsg', 'Empty message',
+    Test_PadMsg_Empty
   ));
   RegisterTest(CreateTest(
-    'Md5', 'LongInt', 'Bitwise and handles sign bit',
-    Test_LongInt_BitwiseAnd
+    'Md5', 'PadMsg', 'Hello-message',
+    Test_PadMsg_Hello
   ));
   RegisterTest(CreateTest(
-    'Md5', 'LongInt', 'Bitwise or handles sign bit',
-    Test_LongInt_BitwiseOr
+    'Md5', 'PadMsg', 'Too long message',
+    Test_PadMsg_TooLong
+  ));
+
+
+  RegisterTest(CreateTest(
+    'Md5', 'IntToHexStr', '',
+    Test_Md5_IntToHexStr
   ));
   RegisterTest(CreateTest(
-    'Md5', 'LongInt', 'Bitwise xor handles sign bit',
-    Test_LongInt_BitwiseXor
-  ));
-  RegisterTest(CreateTest(
-    'Md5', 'LongInt', 'Bitwise not handles sign bit',
-    Test_LongInt_BitwiseNot
+    'Md5', 'LeftRotate', '',
+    Test_Md5_LeftRotate
   ));
 
   RegisterTest(CreateTest(
-    'Md5', 'LongIntToHexStr', 'Converts correctly',
-    Test_Md5_LongIntToHexStr
-  ));
-  RegisterTest(CreateTest(
-    'Md5', 'Pow2', 'Power of 2 calculations',
-    Test_Md5_Pow2
-  ));
-  RegisterTest(CreateTest(
-    'Md5', 'RotateLeft', 'Rotates correctly',
-    Test_Md5_RotateLeft
+    'Md5', 'CountMd5', 'Pre-padded',
+    Test_Md5_CountMd5_Prepadded
   ));
 
+  RegisterTest(CreateTest(
+    'Md5', 'CountMd5', '',
+    Test_Md5_CountMd5
+  ));
 
 end.
