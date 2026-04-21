@@ -138,10 +138,10 @@ var
 
 begin
   Filename := 'METADATA\' + IdToPath(Metadata.Id) + '\METADATA.INI';
-  Log(logDebug, 'Read metadata ' + Filename);
+  SLog(logDebug, 'Read metadata ' + Filename);
   if not (FExists(Filename)) then
   begin
-    Log(logError, 'Standard metadata file not found');
+    SLog(logError, 'Standard metadata file not found');
     Exit;
   end;
   Assign(MetadataFile, Filename);
@@ -183,7 +183,7 @@ function IdToPath(
 begin
   if Length(Id) < 8 then
   begin
-    Log(logWarn, 'Malformed id: ' + Id);
+    SLog(logWarn, 'Malformed id: ' + Id);
     Exit;
   end;
   IdToPath :=
@@ -242,14 +242,14 @@ begin
   Fnm := Metadata.InputFilename[Part];
   if not FExists(Fnm) then
   begin
-    Log(logWarn, Fnm + ' not found');
+    SLog(logWarn, Fnm + ' not found');
     Exit;
   end;
   FindFirst(Fnm, AnyFile, FData);
   AocInp.Size := FData.Size;
   if AocInp.Size > 64000 then
   begin
-    Log(logWarn, Fnm + ' too big');
+    SLog(logWarn, Fnm + ' too big');
     Exit;
   end;
   GetMem(AocInp.Inp, AocInp.Size);
@@ -343,11 +343,11 @@ begin
   end;
   FileLog(Event);
 
-  Event.Msg := ansFgGrn +
+  Event.Msg := {ansFgGrn +}
     Meta.SiteName + ': ' +
     Meta.EventName;
   ScreenLog(Event);
-  Event.Msg := ansFgDkGrn +
+  Event.Msg := {ansFgDkGrn +}
     'Day ' + Copy(Meta.Id, 7, 2) + ': ' +
     Meta.PuzzleName;
   ScreenLog(Event);
@@ -379,7 +379,7 @@ begin
   FileLog(Event);
 
   if Event.Lvl = logWarn then
-    Event.Msg := ansFgDkRed
+    {Event.Msg := ansFgDkRed}
   else
     Event.Msg := '';
   Event.Msg := Event.Msg +
