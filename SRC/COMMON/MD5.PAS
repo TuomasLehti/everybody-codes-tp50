@@ -4,6 +4,8 @@
 
   The biggest limitation is that the length of the message is limited to
   55 bytes.
+
+  The algorithm doesn't deal with null bytes correctly.
 }
 
 unit Md5;
@@ -16,18 +18,6 @@ interface
 
 uses
   Logging;
-
-
-
-const
-
-
-
-  bitsPerBlock = 512;
-
-
-
-  bytesPerBlock = bitsPerBlock / 8;
 
 
 
@@ -101,7 +91,7 @@ function LeftRotate(
 
     S          The string to convert.
 
-    Msg        The message.
+    Msg        The message, already padded.
 
   Remarks
 
@@ -132,6 +122,11 @@ procedure StrToMd5Msg(
     The length of the message must be at most 55 bytes, not including the
     null terminator. Messages longer than this will be truncated and an
     error message will be logged.
+
+    The message must not contain any null bytes or it will be tuncated
+    early. This restriction arises from the fact that this implementation
+    is written with AoC in mind, and the messages in AoC will not include
+    nulls.
 }
 procedure PadMsg(
   var Msg : TMd5Msg
@@ -174,7 +169,7 @@ const
   HexDigits : array[0..15] of Char = '0123456789ABCDEF';
 
 var
-  B : array[0..4] of Byte absolute Num;
+  B : array[0..3] of Byte absolute Num;
   Res : String;
 
 begin
@@ -375,9 +370,12 @@ begin
   end;
 
   {
-    Use A, B, C, D instead of A0, B0, C0, D0, because x0 are constants.
-    They are true constants, because their state is retained between calls
-    to this procedure, if they are variables defined in the const section.
+    Using A, B, C, D instead of A0, B0, C0, D0, because x0 are constants
+    and this is a single-chunk Md5 implementation.
+
+    The x0 are true constants, because their state is retained between calls
+    to this procedure, if they are typed constants
+    (const A0 : LongInt = $12345678;).
   }
 
   A := A0 + A;
@@ -386,8 +384,13 @@ begin
   D := D0 + D;
 
   {
-    So far everything has been big-endian. Switch to little-endian for
-    the final hash.
+    IntToHexStr produces human-readable strings, which are big-endian,
+    because that is the natural way for humans to read numbers. We need
+    to deliberately switch the endiannes to the wrong kind so that
+    IntToHexStr can unwrong it.
+
+    It's a hack and a roundabout way, and should be refactored at some
+    point, but for now it works.
   }
 
   SwitchEndianness(A);
