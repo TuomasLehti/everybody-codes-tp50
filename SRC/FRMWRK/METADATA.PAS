@@ -2,8 +2,24 @@
 
   Handles data about the puzzles:
 
-  - Reading the input to memory.
-  - Log certain timestamps in our own way.
+
+    Reading the input to memory.
+
+
+      The time taken by Input/Output operations may be significant when
+      using floppy disks. Therefore the reading of the puzzle input is
+      done beforehand, before any solving takes place. This way the times
+      for IO and solving are separated and can be compared between
+      different computers.
+
+      The input buffering has a lenient mode. The starting state is not
+      lenient, so when errors are encountered, the program execution is
+      halted with an appropriate error message. By chancing the lenient
+      mode on the program execution continues and the error can be queried
+      by InpResult function.
+
+
+    Log certain timestamps in our own way.
 
 }
 unit Metadata;
@@ -46,6 +62,24 @@ procedure ReadMetadata(
 
 
 
+var
+  InpLenient : Boolean;
+
+const
+  inpOk = 0;
+  inpErrUnexpectedEof = 1;
+
+function InpResult
+: Integer;
+
+
+
+procedure OpenFile(
+  Fnm : String
+);
+
+
+
 procedure OpenInput(
   Metadata : TMetadata;
   Part : Byte
@@ -53,16 +87,77 @@ procedure OpenInput(
 
 
 
+{
+  ---------------------------------------------------------------------------
+  ReadInpChar
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Reads a single character from the puzzle input.
+
+  Parameters
+
+    Returns    The next character from the puzzle input.
+
+  Remarks
+
+    If there are no more characters to read, stops the program execution.
+    If the lenient mode is enabled, returns a null character and sets
+    InpError to 1.
+}
 function ReadInpChar
 : Char;
 
 
 
+{
+  ---------------------------------------------------------------------------
+  ReadInpStr
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Reads a string from the puzzle input.
+
+  Parameters
+
+    Returns    The string.
+
+  Remarks
+
+    The strings in the buffer should be newline-terminated. There should
+    be a newline character or character pair at the end of each string,
+    even the last one. If the last newline marker is missing, this
+    function still behaves correctly, however.
+
+    This function recognizes following newline markers: CR, LF, CR/LF
+    and even LF/CR.
+
+    If there are no more strings to read, stops the program execution.
+    If the lenient mode is enabled, returns en empty string and sets
+    InpError to 1.
+
+}
 function ReadInpStr
 : String;
 
 
 
+{
+  ---------------------------------------------------------------------------
+  InpEof - function
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Checks the status of the puzzle input reader pointer.
+
+  Parameters
+
+    Returns    True if the pointer points past the end of the input.
+
+}
 function InpEof
 : Boolean;
 
@@ -214,6 +309,18 @@ type
 
 
 
+  TEolChr = (eolNone, eolCr, eolLf, eolCrLf, eolLfCr);
+
+
+
+const
+
+
+  Lf = #10;
+  Cr = #13;
+
+
+
 var
 
 
@@ -222,24 +329,64 @@ var
 
 
 
-procedure OpenInput(
-  Metadata : TMetadata;
-  Part : Byte
+  EolChr : TEolChr;
+
+
+
+  InpErr : Integer;
+
+
+
+function InpResult
+: Integer;
+
+begin
+  InpResult := InpErr;
+  InpErr := inpOk;
+end;
+
+
+
+procedure DetectEolChr;
+
+begin
+  with AocInp do
+    for Pos := 1 to Size do
+      if Inp^[Pos] = Lf then
+        if (Pos < Size) and (Inp^[Pos + 1] = Cr) then
+        begin
+          EolChr := eolLfCr;
+          Exit;
+        end
+        else
+        begin
+          EolChr := eolLf;
+          Exit;
+        end
+      else if Inp^[Pos] = Cr then
+        if (Pos < Size) and (Inp^[Pos + 1] = Lf) then
+        begin
+          EolChr := eolCrLf;
+          Exit;
+        end
+        else
+        begin
+          EolChr := eolCr;
+          Exit;
+        end;
+end;
+
+
+
+procedure OpenFile(
+  Fnm : String
 );
 
 var
-  Fnm : String;
-  FData : SearchRec;
   F : File;
+  FData : SearchRec;
 
 begin
-  Fnm :=
-    'INPUTS\'
-    + IdToPath(Metadata.Id)
-    + '\INPUT'
-    + Copy(Metadata.Id, 7, 2)
-    + '.TXT';
-  Fnm := Metadata.InputFilename[Part];
   if not FExists(Fnm) then
   begin
     SLog(logWarn, Fnm + ' not found');
@@ -257,7 +404,29 @@ begin
   Reset(F, 1);
   BlockRead(F, AocInp.Inp^, AocInp.Size);
   Close(F);
+  DetectEolChr;
   AocInp.Pos := 1;
+end;
+
+
+
+procedure OpenInput(
+  Metadata : TMetadata;
+  Part : Byte
+);
+
+var
+  Fnm : String;
+
+begin
+  Fnm :=
+    'INPUTS\'
+    + IdToPath(Metadata.Id)
+    + '\INPUT'
+    + Copy(Metadata.Id, 7, 2)
+    + '.TXT';
+  Fnm := Metadata.InputFilename[Part];
+  OpenFile(Fnm);
   LogIoFinish(Metadata);
 end;
 
@@ -267,6 +436,18 @@ function ReadInpChar
 : Char;
 
 begin
+  if InpEof then
+  begin
+    SLog(logError, 'Tried to read past the end of the input');
+    if not InpLenient then
+      Halt
+    else
+    begin
+      ReadInpChar := #0;
+      InpErr := inpErrUnexpectedEof;
+      Exit;
+    end;
+  end;
   with AocInp do
   begin
     ReadInpChar := Inp^[Pos];
@@ -285,18 +466,45 @@ var
   Res : String;
 
 begin
+
+  if InpEof then
+  begin
+    SLog(logError, 'Tried to read past the end of the input');
+    if not InpLenient then
+      Halt
+    else
+    begin
+      ReadInpStr := '';
+      InpErr := inpErrUnexpectedEof;
+      Exit;
+    end;
+  end;
+
+  { Assuming that the buffer pointer points to the beginning of the string. }
+
   Start := AocInp.Pos;
   while (not InpEof) and (not InpEol) do
     AocInp.Pos := AocInp.Pos + 1;
+
+  { Pos now points to the first newline char. If it points to Start, there
+    is an empty string, which these four lines handle correctly. }
 
   Len := AocInp.Pos - Start;
   Move(AocInp.Inp^[Start], Res[1], Len);
   Res[0] := Chr(Len);
   ReadInpStr := Res;
 
-  repeat
-    AocInp.Pos := AocInp.Pos + 1;
-  until InpEof or (not InpEol)
+  { No need to skip newline chars if we've reached the end of the buffer. }
+
+  if InpEof then Exit;
+
+  { Skip the newline character(s). There it at least one NL char, and two
+    of the possible four NL char combinations have two NL chars. }
+
+  Inc(AocInp.Pos);
+  if (EolChr = eolCrLf) or (EolChr = eolLfCr) then
+    Inc(AocInp.Pos);
+
 end;
 
 
@@ -316,7 +524,7 @@ function InpEol
 
 begin
   with AocInp do
-    InpEol := (Inp^[Pos] = #13) or (Inp^[Pos] = #10);
+    InpEol := (Inp^[Pos] = #13) or (Inp^[Pos] = #10) or (InpEof);
 end;
 
 
@@ -389,4 +597,8 @@ begin
   ScreenLog(Event);
 end;
 
+
+
+begin
+  InpLenient := false;
 end.
