@@ -5,15 +5,22 @@ August 2025.
 
 ## About
 
-[Everybody Codes](https://everybody.codes/) and 
-[Advent of Code](https://adventofcode.com/) are ever-growing sets of 
+[Everybody Codes](https://everybody.codes/),
+[Advent of Code](https://adventofcode.com/) and
+[FlipFlop Codes](https://flipflop.slome.org/) are ever-growing sets of 
 programming puzzles, which may be solved in any programming language.
 
 This repo contains the puzzles which I've chosen to solve using 
-[Turbo Pascal](https://en.wikipedia.org/wiki/Turbo_Pascal) 5.0, which is an 
-ancient Pascal IDE from the 1980s. I run TP in an emulated 25 MHz 486 with 
-4 MB of memory and [MS-DOS](https://en.wikipedia.org/wiki/MS-DOS) 4 as the 
-operating system inside [86box](https://86box.net/).
+[Turbo Pascal](https://en.wikipedia.org/wiki/Turbo_Pascal), which is an 
+ancient Pascal IDE from the 1980s.. The project started with version 5.0,
+and to clear my concience I've since changed to 5.5, which is freely 
+available.
+
+I first run TP in an emulated 25 MHz 486 with 4 MB of memory and
+[MS-DOS](https://en.wikipedia.org/wiki/MS-DOS) 4 as the 
+operating system inside [86box](https://86box.net/). That has later been
+updated to to a 486DX2-66 with 8 megs of RAM and FreeDOS, once again to
+use legal and licensed software.
 
 It should be possible to run the programs in more modern environments as well.
 
@@ -29,9 +36,9 @@ just cease to develop and evolve without prior warning, if things aren't
 fun anymore, or if I don't have the time to delve in the past.
 
 Even though the repo is named after Everybody Codes, it now contains code for
-Advent of Code as well. I may also add some code from [Internationalization
-puzzles](https://i18n-puzzles.com/). Tips for other programming puzzle sites
-are always welcome.
+other coding puzzle sites as well. I may also add some code from
+[Internationalization puzzles](https://i18n-puzzles.com/).
+Tips for other programming puzzle sites are always welcome.
 
 ## Imaedit
 
