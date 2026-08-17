@@ -82,6 +82,37 @@ procedure DestroyLongCoords(
 
 {
   ---------------------------------------------------------------------------
+  LongCoordsEqual - function
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Checks if two untyped pointers point to equal coordinates.
+
+  Parameters
+
+    One        The first pair of coordinates.
+
+    Other      The second pair of coordinates.
+
+  Remarks
+
+    This is a function which is passed to procedures and functions operating
+    on a data strcture containing PLongCoords.
+
+  See
+
+    STRUCTS.PAS
+
+}
+function LongCoordsEqual(
+  One, Other : Pointer
+) : Boolean;
+
+
+
+{
+  ---------------------------------------------------------------------------
   StrToPLongCoords - function
   ---------------------------------------------------------------------------
 
@@ -153,6 +184,35 @@ function ManhDistBetween(
 
 
 
+{
+  ---------------------------------------------------------------------------
+  CardNbors - procedure
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Returns the cardinal neighbors of coordinates.
+
+  Parameters
+
+    Coords     The coordinates whose neighbors are returned.
+
+    Nbors      The neighbors.
+
+  Remarks
+
+    Returns the neighbors of a given cell to the north, east, south and
+    west as a linked list. The list must be initialized by the caller.
+    The individual neighbor coordinates are created here, but must be
+    destroyed by the caller.
+}
+procedure CardNbors(
+  Coords : TLongCoords;
+  var Nbors : TLnkLst { of PLongCoords }
+);
+
+
+
 implementation
 
 
@@ -164,6 +224,23 @@ procedure DestroyLongCoords(
 begin
   Dispose(PLongCoords(Data));
   Data := nil;
+end;
+
+
+
+function LongCoordsEqual(
+  One, Other : Pointer
+) : Boolean;
+
+var
+  First, Second : PLongCoords;
+
+begin
+  First := PLongCoords(One);
+  Second := PLongCoords(Other);
+  LongCoordsEqual :=
+    (First^.X = Second^.X)
+    and (First^.Y = Second^.Y);
 end;
 
 
@@ -206,6 +283,38 @@ begin
 end;
 
 
+
+procedure CardNbors(
+  Coords : TLongCoords;
+  var Nbors : TLnkLst { of PLongCoords }
+);
+
+var
+  Nbor : PLongCoords;
+
+begin
+  New(Nbor);
+  NBor^.X := Coords.X;
+  NBor^.Y := Coords.Y + 1;
+  AppendToLnkLst(Nbors, Nbor);
+
+  New(Nbor);
+  NBor^.X := Coords.X + 1;
+  NBor^.Y := Coords.Y;
+  AppendToLnkLst(Nbors, Nbor);
+
+  New(Nbor);
+  NBor^.X := Coords.X;
+  NBor^.Y := Coords.Y - 1;
+  AppendToLnkLst(Nbors, Nbor);
+
+  New(Nbor);
+  NBor^.X := Coords.X - 1;
+  NBor^.Y := Coords.Y;
+  AppendToLnkLst(Nbors, Nbor);
+end;
+
+
+
 end.
 
-

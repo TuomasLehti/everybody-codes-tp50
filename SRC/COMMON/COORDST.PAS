@@ -18,7 +18,7 @@ interface
 
 
 uses
-  Coords, Strs, Testing;
+  Coords, Strs, Structs, Testing;
 
 
 implementation
@@ -219,6 +219,117 @@ end;
 
 
 
+function Test_LongCoordsEqual_Equal(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  One, Other : PLongCoords;
+  Res : Boolean;
+
+begin
+  New(One);
+  New(Other);
+  One^.X := 10;
+  One^.Y := 10;
+  Other^.X := 10;
+  Other^.Y := 10;
+
+  if not LongCoordsEqual(Pointer(One), Pointer(Other)) then
+  begin
+    Test^.ErrorMsg := 'Equal coordinates not equal';
+    Test_LongCoordsEqual_Equal := false;
+  end
+  else
+  begin
+    Test_LongCoordsEqual_Equal := true;
+  end;
+
+  Dispose(One);
+  Dispose(Other);
+end;
+
+
+
+function Test_LongCoordsEqual_NotEqual(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  One, Other : PLongCoords;
+  Res : Boolean;
+
+begin
+  New(One);
+  New(Other);
+  One^.X := 10;
+  One^.Y := 10;
+  Other^.X := 4;
+  Other^.Y := 0;
+
+  if LongCoordsEqual(Pointer(One), Pointer(Other)) then
+  begin
+    Test^.ErrorMsg := 'Equal coordinates not equal';
+    Test_LongCoordsEqual_NotEqual := false;
+  end
+  else
+  begin
+    Test_LongCoordsEqual_NotEqual := true;
+  end;
+
+  Dispose(One);
+  Dispose(Other);
+end;
+
+
+
+function Test_CardNbors(
+  Test : TTestPtr
+) : Boolean;
+
+const
+  Expected : array[1..4] of TLongCoords = (
+    (X :  0;   Y :  1),
+    (X :  1;   Y :  0),
+    (X :  0;   Y : -1),
+    (X : -1;   Y :  0)
+  );
+
+var
+  Origin : PLongCoords;
+  Nbors : TLnkLst;
+  I : Byte;
+  Res : Boolean;
+
+begin
+  New(Origin);
+  Origin^.X := 0;
+  Origin^.Y := 0;
+  CreateLnkLst(Nbors);
+  CardNbors(Origin^, Nbors);
+
+  for I := 1 to 4 do
+  begin
+    Origin^ := Expected[I];
+    if not LnkLstContains(Nbors, Origin, LongCoordsEqual) then
+    begin
+      Test_CardNbors := false;
+      Test^.ErrorMsg :=
+        'Missing ('
+        + IntToStr(Origin^.X) + ','
+        + IntToStr(Origin^.Y) + ')';
+      DestroyLnkLst(Nbors, DestroyLongCoords);
+      Dispose(Origin);
+    end;
+  end;
+
+  Test_CardNbors := true;
+  DestroyLnkLst(Nbors, DestroyLongCoords);
+  Dispose(Origin);
+end;
+
+
+
 
 begin
   RegisterTest(CreateTest(
@@ -260,4 +371,18 @@ begin
     Test_ManhDistBetween_PosNeg
   ));
 
-end.
+  RegisterTest(CreateTest(
+    'Coords', 'LongCoordsEqual', 'equal coords',
+    Test_LongCoordsEqual_Equal
+  ));
+  RegisterTest(CreateTest(
+    'Coords', 'LongCoordsEqual', 'unequal coords',
+    Test_LongCoordsEqual_NotEqual
+  ));
+
+  RegisterTest(CreateTest(
+    'Coords', 'CardNbors', 'returns right coordinates',
+    Test_CardNbors
+  ));
+
+end.
