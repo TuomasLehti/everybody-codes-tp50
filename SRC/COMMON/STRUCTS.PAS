@@ -38,6 +38,7 @@
   AppendToLnkLst      Adds a node to the end of the linked list.
   CreateLnkLst        Creates (initializes) a linked list.
   DestroyLnkLst       Removes all nodes from the linked list.
+  LnkLstContains      Checks if a linked list contains a piece fo data.
   LnkLstIsEmpty       Checks if the linked list has any nodes.
   PopFromLnkLst       Retrieves and removes the first node of the list.
   PushToLnkLst        Adds a node to the start of the linked list.
@@ -82,7 +83,8 @@
   data structure is destroyed. This kind of delegates the ownership
   of the data pointer to the data structure destroyer routine.
 
-  DataPtrDestroyer    Frees up the memory allocated by the data.
+  DataPtrDestroyer     Frees up the memory allocated by the data.
+  DataPtrsEqual        Checks if two pieces of data are equal.
 
 }
 
@@ -117,7 +119,61 @@ type
     Iter : TNodePtr;
   end;
 
-  DataPtrDestroyer = procedure(var Data : Pointer);
+
+{
+  ---------------------------------------------------------------------------
+  DataPtrDestroyer - procedure prototype
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Frees up the memory allocated by the data.
+
+  Parameters
+
+    Data       An untyped pointer to the data being freed.
+
+  Remarks
+
+    An implementation of this procedure prototype will be passed
+    to the procedures which need to destroy nodes. In other words, this
+    mechanism is used to delegate the ownership of data to the procedure
+    which deletes nodes from a list.
+}
+  DataPtrDestroyer = procedure(
+    var Data : Pointer
+  );
+
+
+
+{
+  ---------------------------------------------------------------------------
+  DataPtrsEqual - function prototype
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Checks if two pieces of data are equal.
+
+  Parameters
+
+    One        An untyped pointer to the first piece of data.
+
+    Other      An untyped pointer to the other piece of data.
+
+  Returns
+
+    True of the two pieces of data are equal.
+
+  Remarks
+
+    An implementation of this procedure prototype will be passed
+    to the procedures which need to determine if two pieces of data are
+    equal.
+}
+  DataPtrsEqual = function(
+    One, Other : Pointer
+  ) : Boolean;
 
 
 
@@ -184,6 +240,35 @@ procedure DestroyLnkLst(
 }
 function LnkLstIsEmpty(
   Lst : TLnkLst
+) : Boolean;
+
+
+
+{
+  ---------------------------------------------------------------------------
+  LnkLstContains - function
+  ---------------------------------------------------------------------------
+
+  Function
+
+    Checks if a linked list contains a piece fo data.
+
+  Parameters
+
+    Lst             The linked list to be checked.
+
+    Data            The data to be checked.
+
+    EqualityTester  A function to test the equality.
+
+  Returns
+
+    True if Data is in the Lst.
+}
+function LnkLstContains(
+  Lst : TLnkLst;
+  Data : Pointer;
+  EqualityTester : DataPtrsEqual
 ) : Boolean;
 
 
@@ -354,12 +439,38 @@ begin
 end;
 
 
+
 function LnkLstIsEmpty(
   Lst : TLnkLst
 ) : Boolean;
 
 begin
   LnkLstIsEmpty := (Lst.Head = nil) and (Lst.Tail = nil);
+end;
+
+
+
+function LnkLstContains(
+  Lst : TLnkLst;
+  Data : Pointer;
+  EqualityTester : DataPtrsEqual
+) : Boolean;
+
+var
+  Node : TNodePtr;
+
+begin
+  Node := Lst.Head;
+  while Node <> nil do
+  begin
+    if EqualityTester(Node^.Data, Data) then
+    begin
+      LnkLstContains := true;
+      Exit;
+    end;
+    Node := Node^.Next;
+  end;
+  LnkLstContains := false;
 end;
 
 
@@ -482,4 +593,4 @@ begin
 end;
 
 
-end.
+end.

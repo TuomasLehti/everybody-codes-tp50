@@ -1,10 +1,14 @@
 program Test;
 
 uses
-  Testing, StrsT, Md5T, StructsT, MetadatT;
+  Testing,
+  StrsT,
+  Md5T,
+  StructsT,
+  MetadatT,
+  CoordsT;
 
 begin
-  Writeln('Hello, world');
   RunAllTests;
   UnregisterAllTests;
-end.
+end.

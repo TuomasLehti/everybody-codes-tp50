@@ -392,6 +392,60 @@ begin
 end;
 
 
+
+function LongIntPtrsEqual(
+  One, Other : Pointer
+) : Boolean;
+
+var
+  First, Second : LongIntPtr;
+
+begin
+  First := LongIntPtr(One);
+  Second := LongIntPtr(Other);
+  LongIntPtrsEqual := First^ = Second^;
+end;
+
+
+
+function Test_LnkLstContains(
+  Test : TTestPtr
+) : Boolean;
+
+var
+  Lst : TLnkLst;
+  Num, Nom : LongIntPtr;
+  I : Byte;
+
+begin
+  CreateLnkLst(Lst);
+  for I := 1 to 5 do
+  begin
+    New(Num);
+    Num^ := I;
+    AppendToLnkLst(Lst, Num);
+  end;
+
+  New(Num);
+  New(Nom);
+  Num^ := 2;
+  Nom^ := 7;
+  if (LnkLstContains(Lst, Num, LongIntPtrsEqual)) and
+    (not LnkLstContains(Lst, Nom, LongIntPtrsEqual)) then
+  begin
+    Test_LnkLstContains := true;
+  end
+  else
+  begin
+    Test_LnkLstContains := false;
+  end;
+
+  Dispose(Num);
+  Dispose(Nom);
+  DestroyLnkLst(Lst, LongIntPtrDestroyer);
+end;
+
+
 procedure Register_LnkLstTests;
 
 begin
@@ -448,4 +502,8 @@ end;
 begin
   Register_LnkLstTests;
   Register_LnkLstIterTests;
-end.
+  RegisterTest(CreateTest(
+    'Structs', 'LnkLst.Contains','Simple test',
+    Test_LnkLstContains
+  ));
+end.
